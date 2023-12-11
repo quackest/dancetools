@@ -2,7 +2,9 @@
 A simple plugin that allows you to spawn items and enemies.
 
 ## Plugin Info
-Currently there are 2 commands (.item and .enemy)
+Currently there are 2 commands (.item and .enemy)<br>
+Type the commands in chat, if done correctly, the command will not be shown to anyone.<br>
+**ONLY HOST CAN USE THESE COMMANDS**
 
 ### **Item Spawn Command:**
 Using the command without arguments will show you how to use it in-game.
@@ -97,3 +99,5 @@ Example: `.enemy 1 onme` <- Spawns a Bunker Spider directly on you. **Doing this
 </details>
 
 ## Known Issues/Bugs
+
+## Credits/Help
