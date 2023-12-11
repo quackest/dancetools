@@ -96,6 +96,8 @@ ClientBin/
 *~
 *.dbmdl
 *.[Pp]ublish.xml
+.vs/
+Libraries/
 
 *.publishsettings
 
@@ -131,3 +133,11 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
+
+*.vsidx
+
+dancemoonItemSpawner.csproj
+
+danceTools.sln
+
+Properties/
