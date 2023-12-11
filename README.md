@@ -7,7 +7,8 @@ Type the commands in chat, if done correctly, the command will not be shown to a
 **ONLY HOST CAN USE THESE COMMANDS**
 
 ### **Item Spawn Command:**
-Using the command without arguments will show you how to use it in-game.
+Using the command without arguments will show you how to use it in-game.<br>
+**Note: Using `.item` in game will also show the full list of spawnable items (Including modded) in <br> the Bepin console IF your debug logging is enabled for Bepin**
 
 Usage: `.item ItemID (optional: amount) (optional: value)`<br>
 Example: `.item 49 2 690` <- Spawns 2 Rubber Duckies with the sell value of 690<br>
@@ -99,5 +100,13 @@ Example: `.enemy 1 onme` <- Spawns a Bunker Spider directly on you. **Doing this
 </details>
 
 ## Known Issues/Bugs
+- Items that are spawned have no value when scanned. These items still sell for the correct value.
+- Items that are spawned while in the ship/pre-game will sometimes go through the ship until landed.
+- Gift box item sometimes doesn't have an item(?)
 
-## Credits/Help
+## Special Thanks to:
+[MrMiinxx](https://www.youtube.com/watch?v=4Q7Zp5K2ywI) - YouTube tutorial for how to make a plugin<br>
+[GameMaster Plugin](https://thunderstore.io/c/lethal-company/p/GameMasterDevs/GameMaster/) - Great Plugin with great examples
+
+## Other
+Feel free to use code from this plugin
