@@ -7,14 +7,20 @@ using System.Threading.Tasks;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 using HarmonyLib;
 using Unity;
 using Unity.Netcode;
 using BepInEx.Logging;
 using DunGen;
 using GameNetcodeStuff;
+using DanceTools.UI;
+using BepInEx.Configuration;
+using System.IO;
+using System.Reflection;
+using TMPro;
 
-namespace danceTools
+namespace DanceTools
 {
     [BepInPlugin(pluginGUID, pluginName, pluginVersion)]
     public class DanceTools : BaseUnityPlugin
@@ -30,18 +36,76 @@ namespace danceTools
         internal static RoundManager currentRound;
         internal static SelectableLevel currentLevel;
 
+        //ui stuffs
+        internal static GameObject dynamicListUI;
+        internal static GameObject listButton;
+        internal static DTWidget DTUI;
+        internal static DTUIManager DTUIManager;
+        internal static Canvas canvas;
+
+
         internal static bool isHost;
 
 
         public static string prefix = "."; //default
+
         public void Awake()
         {
             Instance = this;
-            Logger.LogInfo("Hello guys!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            Logger.LogInfo("DanceTools loaded :^]");
             
-            mls = BepInEx.Logging.Logger.CreateLogSource("ItemSpawner");
-            // Plugin startup logic
+            mls = BepInEx.Logging.Logger.CreateLogSource("DanceTools");
+
+            //load assetbundles
+            AssetBundle assets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DanceTools/dancetoolsuitest"));
+            //assets.GetAllAssetNames();
+            dynamicListUI = assets.LoadAsset<GameObject>("assets/prefabs/ui/dynamiclist.prefab");
+            listButton = assets.LoadAsset<GameObject>("assets/prefabs/ui/dynamicbutton.prefab");
+
+            string temp = "";
+            foreach(string asset in assets.GetAllAssetNames())
+            {
+                temp += asset;
+            }
+
+            mls.LogInfo(temp);
+
+            //creating the gameobject for managing the ui, kinda dumb way of doing it but hey
+            GameObject UIManager = new UnityEngine.GameObject("DanceToolsUIManager");
+            UIManager.hideFlags = HideFlags.HideAndDontSave;
+            DontDestroyOnLoad(UIManager);
+            UIManager.AddComponent<DTUIManager>();
+            DTUIManager = UIManager.GetComponent<DTUIManager>();
+
+            //creating the gameobject for the UI
+            GameObject widget = new UnityEngine.GameObject("DanceToolsWidget");
+            widget.hideFlags = HideFlags.HideAndDontSave;
+            DontDestroyOnLoad(widget);
+            widget.AddComponent<DTWidget>();
+            DTUI = widget.GetComponent<DTWidget>();
+            SetUpUI();
+
+            //parent the two gameobjects
+            DTUI.gameObject.transform.SetParent(UIManager.transform, false);
+            
+            //harmony
             harmony.PatchAll(typeof(DanceTools));
+        }
+
+        private void SetUpUI()
+        {
+            canvas = DTUI.gameObject.AddComponent<Canvas>();
+            DTUI.gameObject.AddComponent<CanvasScaler>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            //var dynlsit = Instantiate(dynamicListUI, new Vector3(150f, 200f, 0f), Quaternion.identity, canvas.transform);
+            //var btnholder = dynlsit.GetComponentInChildren<VerticalLayoutGroup>();
+
+            /*for (int i = 0; i < StartOfRound.Instance.allItemsList.itemsList.Count; i++)
+            {
+                var btn = Instantiate(listButton, btnholder.transform);
+                btn.GetComponentInChildren<TMP_Text>().text = $"\n{i} | {StartOfRound.Instance.allItemsList.itemsList[i].itemName}";
+            }*/
+
         }
 
         //set host of the lobby
@@ -78,6 +142,14 @@ namespace danceTools
                     DMNotice("Item Spawner", "Usage: .item itemID amount value\nCheck Bepin Console");
 
                     string itemPrint = "\nItem List (ID | Name)";
+
+                    var dynlsit = Instantiate(dynamicListUI, new Vector3(150f, 200f, 0f), Quaternion.identity, canvas.transform);
+                    var btnholder = dynlsit.GetComponentInChildren<VerticalLayoutGroup>();
+                    for (int i = 0; i < StartOfRound.Instance.allItemsList.itemsList.Count; i++)
+                    {
+                        var btn = Instantiate(listButton, btnholder.transform);
+                        btn.GetComponentInChildren<TMP_Text>().text = $"\n{i} | {StartOfRound.Instance.allItemsList.itemsList[i].itemName}";
+                    }
 
                     AllItemsList itemList = StartOfRound.Instance.allItemsList;
                     mls.LogInfo(itemList.itemsList.Count);
@@ -187,8 +259,8 @@ namespace danceTools
         }
 
 
-            //do something when command is sent
-            static void CommandSent(HUDManager ins)
+        //do something when command is sent
+        static void CommandSent(HUDManager ins)
         {
             ins.chatTextField.text = ""; //hide the command message
         }
