@@ -54,26 +54,40 @@ namespace DanceTools
             mls = BepInEx.Logging.Logger.CreateLogSource("DanceTools");
 
             //load assetbundles
-            AssetBundle assets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DanceTools/dancetoolsconsole"));
-            //assets.GetAllAssetNames();
-            //mls.LogInfo(assets.GetAllAssetNames());
-            consoleRef = assets.LoadAsset<GameObject>("assets/prefabs/dancetoolsconsole.prefab"); //dancetoolsconsolestripped
-
-            string temp = "";
+            AssetBundle assets = null;
+            try
+            {
+                assets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DanceTools/dancetoolsconsole"));
+                consoleRef = assets.LoadAsset<GameObject>("assets/prefabs/dancetoolsconsole.prefab"); //dancetoolsconsolestripped
+            } catch (Exception)
+            {
+                mls.LogFatal("Couldn't load assets.. make sure you've installed everything correctly");
+                consoleRef = null;
+            }
+            
+            //debug
+            /*string temp = "";
             foreach(string asset in assets.GetAllAssetNames())
             {
                 temp += asset;
             }
-
             mls.LogInfo(temp);
+            */
 
-            //creating the gameobject for managing the ui, kinda dumb way of doing it but hey
-            console = Instantiate(consoleRef);
-            console.AddComponent<DTUIManager>();
-            console.AddComponent<DTWidget>();
-            console.hideFlags = HideFlags.HideAndDontSave; //important!!!
+            //adding ui elements in game when game starts.
+            if(consoleRef != null)
+            {
+                console = Instantiate(consoleRef);
+                console.AddComponent<DTUIManager>();
+                console.AddComponent<DTWidget>();
+                console.hideFlags = HideFlags.HideAndDontSave; //important!!!
 
-            DontDestroyOnLoad(console);
+                DontDestroyOnLoad(console);
+            } else
+            {
+                mls.LogFatal("No console assets present!!!!\nPlease check that you've installed everything correctly!!");
+            }
+
 
             //harmony
             harmony.PatchAll(typeof(DanceTools));

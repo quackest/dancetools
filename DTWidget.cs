@@ -48,32 +48,34 @@ namespace DanceTools.UI
 
             input.onSubmit.AddListener(text => { OnEditEnd(text); }); ; //worky :^]
 
+            output.text = "";
+
+            PushTextToOutput($"Hey there!\nDanceTools V{DanceTools.pluginVersion}\n", "yellow");
+
             holder.SetActive(false);
             //ToggleUI();
         }
 
-        //on send
+        //User input
         public void OnEditEnd(string txt)
         {
-            //Debug.Log(input.text);
-            PushTextToOutput($"> {input.text}");
+            PushTextToOutput($"> {input.text}"); 
+
+            //do stuff with input.text
+
+            //...
+            
             input.text = " ";
             input.ActivateInputField();
         }
-
-        public void PushTextToOutput(string text)
+        //Every response sent back
+        public void PushTextToOutput(string text, string color = "#00FFF3")
         {
-            output.text = $"{text}\n{oldOutput}";
+            output.text = $"<color={color}>{text}</color>\n{oldOutput}";
             oldOutput = output.text;
         }
 
-        public void SendOutput(string text, string color)
-        {
-            PushTextToOutput($"<color={color}>{text}</color>");
-        }
-
-        
-        //ui things
+        //ui key
         public void Update()
         {
             if (!DanceTools.isHost) return; //ignore if not host
@@ -83,10 +85,11 @@ namespace DanceTools.UI
             }
         }
 
+        //toggle ui;
         public void ToggleUI()
         {
             isUIOpen = !isUIOpen;
-            //toggle ui;
+            
             if (isUIOpen)
             {
                 holder.gameObject.SetActive(false);
@@ -100,7 +103,10 @@ namespace DanceTools.UI
                 GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = true;
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                //auto focus
+                input.text = " ";
                 input.ActivateInputField();
+
             }
         }
     }
