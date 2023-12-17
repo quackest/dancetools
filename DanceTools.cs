@@ -164,7 +164,7 @@ namespace danceTools
                 string noticeBody = "Spawned in a random vent inside";
 
                 //spawn it in a random vent
-                if(msg.Length < 2)
+                if(msg.Length > 2)
                 {
                     if (msg[2] == "onme")
                     {
