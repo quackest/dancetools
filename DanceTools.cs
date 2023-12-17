@@ -37,12 +37,9 @@ namespace DanceTools
         internal static SelectableLevel currentLevel;
 
         //ui stuffs
-        internal static GameObject dynamicListUI;
-        internal static GameObject listButton;
-        internal static DTWidget DTUI;
-        internal static DTUIManager DTUIManager;
-        internal static Canvas canvas;
-
+        internal static GameObject consoleRef;
+        internal static GameObject console; //obj manager
+        internal static GameObject consoleHolder; //obj
 
         internal static bool isHost;
 
@@ -57,10 +54,10 @@ namespace DanceTools
             mls = BepInEx.Logging.Logger.CreateLogSource("DanceTools");
 
             //load assetbundles
-            AssetBundle assets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DanceTools/dancetoolsuitest"));
+            AssetBundle assets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DanceTools/dancetoolsconsole"));
             //assets.GetAllAssetNames();
-            dynamicListUI = assets.LoadAsset<GameObject>("assets/prefabs/ui/dynamiclist.prefab");
-            listButton = assets.LoadAsset<GameObject>("assets/prefabs/ui/dynamicbutton.prefab");
+            //mls.LogInfo(assets.GetAllAssetNames());
+            consoleRef = assets.LoadAsset<GameObject>("assets/prefabs/dancetoolsconsole.prefab"); //dancetoolsconsolestripped
 
             string temp = "";
             foreach(string asset in assets.GetAllAssetNames())
@@ -71,42 +68,17 @@ namespace DanceTools
             mls.LogInfo(temp);
 
             //creating the gameobject for managing the ui, kinda dumb way of doing it but hey
-            GameObject UIManager = new UnityEngine.GameObject("DanceToolsUIManager");
-            UIManager.hideFlags = HideFlags.HideAndDontSave;
-            DontDestroyOnLoad(UIManager);
-            UIManager.AddComponent<DTUIManager>();
-            DTUIManager = UIManager.GetComponent<DTUIManager>();
+            console = Instantiate(consoleRef);
+            console.AddComponent<DTUIManager>();
+            console.AddComponent<DTWidget>();
+            console.hideFlags = HideFlags.HideAndDontSave; //important!!!
 
-            //creating the gameobject for the UI
-            GameObject widget = new UnityEngine.GameObject("DanceToolsWidget");
-            widget.hideFlags = HideFlags.HideAndDontSave;
-            DontDestroyOnLoad(widget);
-            widget.AddComponent<DTWidget>();
-            DTUI = widget.GetComponent<DTWidget>();
-            SetUpUI();
+            DontDestroyOnLoad(console);
 
-            //parent the two gameobjects
-            DTUI.gameObject.transform.SetParent(UIManager.transform, false);
-            
             //harmony
             harmony.PatchAll(typeof(DanceTools));
         }
 
-        private void SetUpUI()
-        {
-            canvas = DTUI.gameObject.AddComponent<Canvas>();
-            DTUI.gameObject.AddComponent<CanvasScaler>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            //var dynlsit = Instantiate(dynamicListUI, new Vector3(150f, 200f, 0f), Quaternion.identity, canvas.transform);
-            //var btnholder = dynlsit.GetComponentInChildren<VerticalLayoutGroup>();
-
-            /*for (int i = 0; i < StartOfRound.Instance.allItemsList.itemsList.Count; i++)
-            {
-                var btn = Instantiate(listButton, btnholder.transform);
-                btn.GetComponentInChildren<TMP_Text>().text = $"\n{i} | {StartOfRound.Instance.allItemsList.itemsList[i].itemName}";
-            }*/
-
-        }
 
         //set host of the lobby
         [HarmonyPatch(typeof(RoundManager), "Start")]
@@ -143,13 +115,6 @@ namespace DanceTools
 
                     string itemPrint = "\nItem List (ID | Name)";
 
-                    var dynlsit = Instantiate(dynamicListUI, new Vector3(150f, 200f, 0f), Quaternion.identity, canvas.transform);
-                    var btnholder = dynlsit.GetComponentInChildren<VerticalLayoutGroup>();
-                    for (int i = 0; i < StartOfRound.Instance.allItemsList.itemsList.Count; i++)
-                    {
-                        var btn = Instantiate(listButton, btnholder.transform);
-                        btn.GetComponentInChildren<TMP_Text>().text = $"\n{i} | {StartOfRound.Instance.allItemsList.itemsList[i].itemName}";
-                    }
 
                     AllItemsList itemList = StartOfRound.Instance.allItemsList;
                     mls.LogInfo(itemList.itemsList.Count);
@@ -236,7 +201,7 @@ namespace DanceTools
                 string noticeBody = "Spawned in a random vent inside";
 
                 //spawn it in a random vent
-                if(msg.Length < 2)
+                if(msg.Length > 2)
                 {
                     if (msg[2] == "onme")
                     {

@@ -5,13 +5,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 namespace DanceTools.UI
 {
     internal class DTWidget : MonoBehaviour
     {
-
+        //tester
         private bool isUIOpen = false;
 
         private void Awake()
@@ -33,7 +34,57 @@ namespace DanceTools.UI
         //ui things
         internal static KeyboardShortcut UIShortcut = new KeyboardShortcut(KeyCode.RightBracket); //ui key
         internal static bool isUIOpen = false;
+        public GameObject holder;
+        public TMP_InputField input;
+        public TextMeshProUGUI output;
+        private string oldOutput = "";
 
+        private void Awake()
+        {
+            holder = transform.Find("Holder").gameObject;
+            input = transform.Find("Holder/InputBackground/InputField").GetComponent<TMP_InputField>();
+            output = transform.Find("Holder/OutputBackground/OutputField").GetComponent<TextMeshProUGUI>();
+            DanceTools.mls.LogInfo($"Setup holder: {holder.name}");
+            DanceTools.mls.LogInfo($"Setup input: {input.name}");
+            DanceTools.mls.LogInfo($"Setup output: {output.name}");
+
+            input.onSubmit.AddListener(text => { OnEditEnd(text); }); ; //worky :^]
+        }
+
+        private void ToggleHolder(bool enabled)
+        {
+            if (enabled)
+            {
+                holder.SetActive(true);
+                input.ActivateInputField();
+            }
+            else
+            {
+                holder.SetActive(false);
+            }
+        }
+
+        //on send
+        public void OnEditEnd(string txt)
+        {
+            //Debug.Log(input.text);
+            PushTextToOutput($"> {input.text}");
+            input.text = " ";
+            input.ActivateInputField();
+        }
+
+        public void PushTextToOutput(string text)
+        {
+            output.text = $"{text}\n{oldOutput}";
+            oldOutput = output.text;
+        }
+
+        public void SendOutput(string text, string color)
+        {
+            PushTextToOutput($"<color={color}>{text}</color>");
+        }
+
+        
         //ui things
         public void Update()
         {
@@ -62,11 +113,12 @@ namespace DanceTools.UI
             //toggle ui;
             if (isUIOpen)
             {
-                DanceTools.DTUI.gameObject.SetActive(false);
+                holder.gameObject.SetActive(false);
             }
             else
             {
-                DanceTools.DTUI.gameObject.SetActive(true);
+                holder.gameObject.SetActive(true);
+                input.ActivateInputField();
             }
         }
     }
