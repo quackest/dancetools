@@ -7,24 +7,21 @@ using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace DanceTools.UI
 {
     internal class DTWidget : MonoBehaviour
     {
-        //tester
-        private bool isUIOpen = false;
-
+        //sanity check
         private void Awake()
         {
             DanceTools.mls.LogInfo("UI Loaded");
         }
-
         private void OnEnable()
         {
             DanceTools.mls.LogInfo("IM HERE!!!!!");
         }
-
     }
 
 
@@ -32,7 +29,7 @@ namespace DanceTools.UI
     internal class DTUIManager : MonoBehaviour
     {
         //ui things
-        internal static KeyboardShortcut UIShortcut = new KeyboardShortcut(KeyCode.RightBracket); //ui key
+        internal static KeyboardShortcut UIShortcut = new KeyboardShortcut(KeyCode.BackQuote); //ui key
         internal static bool isUIOpen = false;
         public GameObject holder;
         public TMP_InputField input;
@@ -41,27 +38,18 @@ namespace DanceTools.UI
 
         private void Awake()
         {
+            //get ui elements from asset bundle
             holder = transform.Find("Holder").gameObject;
             input = transform.Find("Holder/InputBackground/InputField").GetComponent<TMP_InputField>();
-            output = transform.Find("Holder/OutputBackground/OutputField").GetComponent<TextMeshProUGUI>();
+            output = transform.Find("Holder/OutputBackground/Scroll/Viewport/OutputField").GetComponent<TextMeshProUGUI>();
             DanceTools.mls.LogInfo($"Setup holder: {holder.name}");
             DanceTools.mls.LogInfo($"Setup input: {input.name}");
             DanceTools.mls.LogInfo($"Setup output: {output.name}");
 
             input.onSubmit.AddListener(text => { OnEditEnd(text); }); ; //worky :^]
-        }
 
-        private void ToggleHolder(bool enabled)
-        {
-            if (enabled)
-            {
-                holder.SetActive(true);
-                input.ActivateInputField();
-            }
-            else
-            {
-                holder.SetActive(false);
-            }
+            holder.SetActive(false);
+            //ToggleUI();
         }
 
         //on send
@@ -91,33 +79,27 @@ namespace DanceTools.UI
             if (!DanceTools.isHost) return; //ignore if not host
             if (UIShortcut.IsDown())
             {
-                if (!isUIOpen)
-                {
-                    //open UI
-                    DanceTools.mls.LogInfo("UI Open");
-                    isUIOpen = true;
-                    ToggleUI();
-                }
-                else
-                {
-                    //close UI
-                    DanceTools.mls.LogInfo("UI Closed");
-                    isUIOpen = false;
-                    ToggleUI();
-                }
+                ToggleUI();
             }
         }
 
         public void ToggleUI()
         {
+            isUIOpen = !isUIOpen;
             //toggle ui;
             if (isUIOpen)
             {
                 holder.gameObject.SetActive(false);
+                GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
             else
             {
                 holder.gameObject.SetActive(true);
+                GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = true;
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
                 input.ActivateInputField();
             }
         }
