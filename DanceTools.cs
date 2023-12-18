@@ -14,7 +14,6 @@ using Unity.Netcode;
 using BepInEx.Logging;
 using DunGen;
 using GameNetcodeStuff;
-using DanceTools.UI;
 using BepInEx.Configuration;
 using System.IO;
 using System.Reflection;
@@ -36,11 +35,18 @@ namespace DanceTools
         internal static RoundManager currentRound;
         internal static SelectableLevel currentLevel;
 
-        //ui stuffs
+        //Console things
         internal static GameObject consoleRef;
         internal static GameObject console; //obj manager
         internal static GameObject consoleHolder; //obj
+        //console colors
+        internal static string consolePlayerColor = "#00FFF3";
+        internal static string consoleSuccessColor = "green";
+        internal static string consoleInfoColor = "yellow";
+        internal static string consoleErrorColor = "red";
 
+
+        //host
         internal static bool isHost;
 
 
@@ -78,8 +84,8 @@ namespace DanceTools
             if(consoleRef != null)
             {
                 console = Instantiate(consoleRef);
-                console.AddComponent<DTUIManager>();
-                console.AddComponent<DTWidget>();
+                console.AddComponent<DTConsole>();
+                console.AddComponent<DTCmdHandler>();
                 console.hideFlags = HideFlags.HideAndDontSave; //important!!!
 
                 DontDestroyOnLoad(console);
