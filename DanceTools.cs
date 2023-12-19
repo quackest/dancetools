@@ -27,7 +27,7 @@ namespace DanceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.0.0.0";
+        public const string pluginVersion = "1.1.0.0";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
@@ -93,8 +93,6 @@ namespace DanceTools
             {
                 mls.LogFatal("No console assets present!!!!\nPlease check that you've installed everything correctly!!");
             }
-
-
             //harmony
             harmony.PatchAll(typeof(DanceTools));
         }
@@ -107,7 +105,6 @@ namespace DanceTools
         {
             isHost = RoundManager.Instance.NetworkManager.IsHost;
             currentRound = RoundManager.Instance;
-            //AllItemsList
         }
 
         //on chat message sent
@@ -117,7 +114,7 @@ namespace DanceTools
         {
             if (!isHost) return; //if not host, ignore 
 
-            currentRound = RoundManager.Instance;
+            //currentRound = RoundManager.Instance;
             string text = __instance.chatTextField.text;
 
             //mls.LogInfo($"{text}"); //debug
@@ -240,6 +237,20 @@ namespace DanceTools
                     mls.LogInfo($"error: {e.Message}");
                     CommandSent(__instance);
                 }
+            }
+        }
+
+        public static int CheckInt(string input)
+        {
+            //fix for invalid args
+            if (int.TryParse(input, out int val))
+            {
+                return val;
+            }
+            else
+            {
+                DTConsole.Instance.PushTextToOutput($"Invalid Argument", DanceTools.consoleErrorColor);
+                return -1;
             }
         }
 

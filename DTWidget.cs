@@ -68,6 +68,7 @@ namespace DanceTools
         {
             cmd.ExecCommand(args);
         }
+
     }
 
     //handles inputs, outputs and keybind to the console
@@ -102,7 +103,7 @@ namespace DanceTools
             PushTextToOutput($"\nHey there!\nDanceTools V{DanceTools.pluginVersion}\n", DanceTools.consoleInfoColor);
 
             //hide the console on startup
-            //holder.SetActive(false); //uncomment
+            holder.SetActive(false); //uncomment
         }
 
         //User input
@@ -112,7 +113,7 @@ namespace DanceTools
             //do stuff with input.text
             DTCmdHandler.Instance.CheckCommand(input.text);
             //...
-            input.text = " ";
+            input.text = "";
             input.ActivateInputField();
         }
         //Every response sent back
@@ -151,7 +152,7 @@ namespace DanceTools
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 //auto focus and reset text to nothing
-                input.text = " ";
+                input.text = "";
                 input.ActivateInputField();
 
             }
