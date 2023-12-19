@@ -17,7 +17,7 @@ using GameNetcodeStuff;
 using BepInEx.Configuration;
 using System.IO;
 using System.Reflection;
-using TMPro;
+
 
 namespace DanceTools
 {
@@ -40,10 +40,10 @@ namespace DanceTools
         internal static GameObject console; //obj manager
         internal static GameObject consoleHolder; //obj
         //console colors
-        internal static string consolePlayerColor = "#00FFF3";
-        internal static string consoleSuccessColor = "green";
-        internal static string consoleInfoColor = "yellow";
-        internal static string consoleErrorColor = "red";
+        internal static string consolePlayerColor;
+        internal static string consoleSuccessColor;
+        internal static string consoleInfoColor;
+        internal static string consoleErrorColor;
 
 
         //host
@@ -89,12 +89,25 @@ namespace DanceTools
                 console.hideFlags = HideFlags.HideAndDontSave; //important!!!
 
                 DontDestroyOnLoad(console);
+
+                InitConfig();
+
             } else
             {
                 mls.LogFatal("No console assets present!!!!\nPlease check that you've installed everything correctly!!");
             }
             //harmony
             harmony.PatchAll(typeof(DanceTools));
+        }
+
+        private void InitConfig()
+        {
+            //console customization
+            consolePlayerColor = Config.Bind("Console Customization", "Console Player Color", "#00FFF3", "Set player console color").Value;
+            consoleSuccessColor = Config.Bind("Console Customization", "Console Success Color", "green", "Set success message console color").Value;
+            consoleInfoColor = Config.Bind("Console Customization", "Console Info Color", "yellow", "Set info message console color").Value;
+            consoleErrorColor = Config.Bind("Console Customization", "Console Error Color", "red", "Set error/fail message console color").Value;
+            //add more settings here
         }
 
 
@@ -240,7 +253,7 @@ namespace DanceTools
             }
         }
 
-        public static int CheckInt(string input)
+        internal static int CheckInt(string input)
         {
             //fix for invalid args
             if (int.TryParse(input, out int val))
@@ -251,6 +264,19 @@ namespace DanceTools
             {
                 DTConsole.Instance.PushTextToOutput($"Invalid Argument", DanceTools.consoleErrorColor);
                 return -1;
+            }
+        }
+
+        internal static bool CheckHost()
+        {
+            //check if host
+            if (!isHost)
+            {
+                DTConsole.Instance.PushTextToOutput($"You must be host to use this command", DanceTools.consoleErrorColor);
+                return false;
+            } else
+            {
+                return true;
             }
         }
 

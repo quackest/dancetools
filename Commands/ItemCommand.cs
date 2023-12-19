@@ -75,11 +75,21 @@ namespace DanceTools.Commands
                 }
 
             }
+            //GameNetworkManager.Instance.localPlayerController.transform.position
+            
+            Vector3 spawnPos = GameNetworkManager.Instance.localPlayerController.transform.position;
+
+            if(GameNetworkManager.Instance.localPlayerController.isPlayerDead)
+            {
+                spawnPos = GameNetworkManager.Instance.localPlayerController.spectatedPlayerScript.transform.position;
+                DTConsole.Instance.PushTextToOutput($"Spawning item on {GameNetworkManager.Instance.localPlayerController.spectatedPlayerScript.playerUsername}", DanceTools.consoleInfoColor);
+            }
 
             //spawn multiple items
             for (int i = 0; i < amount; i++)
             {
-                GameObject obj = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[index].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
+                
+                GameObject obj = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[index].spawnPrefab, spawnPos, Quaternion.identity);
                 obj.GetComponent<GrabbableObject>().fallTime = 0f;
                 
                 //set cost for item

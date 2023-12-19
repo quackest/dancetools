@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DanceTools
 {
-    internal interface ICommand
+    public interface ICommand
     {
         string Name { get; }
         string Desc { get; }

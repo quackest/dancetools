@@ -82,6 +82,12 @@ namespace DanceTools
         public TextMeshProUGUI output;
         private string oldOutput = "";
         internal static DTConsole Instance;
+        internal static string[] sillyMessages = 
+            { 
+            "Hey there!",
+            "Console colors are customizable in the config o.o",
+            "Haiii! >.<",
+            "Dancing on the moon or something.."};
 
         private void Awake()
         {
@@ -100,7 +106,7 @@ namespace DanceTools
             //clear console
             output.text = "";
             //intro message
-            PushTextToOutput($"\nHey there!\nDanceTools V{DanceTools.pluginVersion}\n", DanceTools.consoleInfoColor);
+            PushTextToOutput($"\n{sillyMessages[UnityEngine.Random.Range(0, sillyMessages.Length)]}\nDanceTools v{DanceTools.pluginVersion}\n", "#FF00FF");
 
             //hide the console on startup
             holder.SetActive(false); //uncomment
@@ -157,7 +163,6 @@ namespace DanceTools
 
             }
         }
-
         public void ClearConsole()
         {
             output.text = "";
