@@ -7,14 +7,19 @@ using System.Threading.Tasks;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 using HarmonyLib;
 using Unity;
 using Unity.Netcode;
 using BepInEx.Logging;
 using DunGen;
 using GameNetcodeStuff;
+using BepInEx.Configuration;
+using System.IO;
+using System.Reflection;
 
-namespace danceTools
+
+namespace DanceTools
 {
     [BepInPlugin(pluginGUID, pluginName, pluginVersion)]
     public class DanceTools : BaseUnityPlugin
@@ -22,7 +27,7 @@ namespace danceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.0.0.0";
+        public const string pluginVersion = "1.1.0.0";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
@@ -30,19 +35,81 @@ namespace danceTools
         internal static RoundManager currentRound;
         internal static SelectableLevel currentLevel;
 
+        //Console things
+        internal static GameObject consoleRef;
+        internal static GameObject console; //obj manager
+        internal static GameObject consoleHolder; //obj
+        //console colors
+        internal static string consolePlayerColor;
+        internal static string consoleSuccessColor;
+        internal static string consoleInfoColor;
+        internal static string consoleErrorColor;
+
+
+        //host
         internal static bool isHost;
 
 
         public static string prefix = "."; //default
+
         public void Awake()
         {
             Instance = this;
-            Logger.LogInfo("Hello guys!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            Logger.LogInfo("DanceTools loaded :^]");
             
-            mls = BepInEx.Logging.Logger.CreateLogSource("ItemSpawner");
-            // Plugin startup logic
+            mls = BepInEx.Logging.Logger.CreateLogSource("DanceTools");
+
+            //load assetbundles
+            AssetBundle assets = null;
+            try
+            {
+                assets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DanceTools/dancetoolsconsole"));
+                consoleRef = assets.LoadAsset<GameObject>("assets/prefabs/dancetoolsconsole.prefab"); //dancetoolsconsolestripped
+            } catch (Exception)
+            {
+                mls.LogFatal("Couldn't load assets.. make sure you've installed everything correctly");
+                consoleRef = null;
+            }
+            
+            //debug
+            /*string temp = "";
+            foreach(string asset in assets.GetAllAssetNames())
+            {
+                temp += asset;
+            }
+            mls.LogInfo(temp);
+            */
+
+            //adding ui elements in game when game starts.
+            if(consoleRef != null)
+            {
+                console = Instantiate(consoleRef);
+                console.AddComponent<DTConsole>();
+                console.AddComponent<DTCmdHandler>();
+                console.hideFlags = HideFlags.HideAndDontSave; //important!!!
+
+                DontDestroyOnLoad(console);
+
+                InitConfig();
+
+            } else
+            {
+                mls.LogFatal("No console assets present!!!!\nPlease check that you've installed everything correctly!!");
+            }
+            //harmony
             harmony.PatchAll(typeof(DanceTools));
         }
+
+        private void InitConfig()
+        {
+            //console customization
+            consolePlayerColor = Config.Bind("Console Customization", "Console Player Color", "#00FFF3", "Set player console color").Value;
+            consoleSuccessColor = Config.Bind("Console Customization", "Console Success Color", "green", "Set success message console color").Value;
+            consoleInfoColor = Config.Bind("Console Customization", "Console Info Color", "yellow", "Set info message console color").Value;
+            consoleErrorColor = Config.Bind("Console Customization", "Console Error Color", "red", "Set error/fail message console color").Value;
+            //add more settings here
+        }
+
 
         //set host of the lobby
         [HarmonyPatch(typeof(RoundManager), "Start")]
@@ -51,7 +118,6 @@ namespace danceTools
         {
             isHost = RoundManager.Instance.NetworkManager.IsHost;
             currentRound = RoundManager.Instance;
-            //AllItemsList
         }
 
         //on chat message sent
@@ -61,7 +127,7 @@ namespace danceTools
         {
             if (!isHost) return; //if not host, ignore 
 
-            currentRound = RoundManager.Instance;
+            //currentRound = RoundManager.Instance;
             string text = __instance.chatTextField.text;
 
             //mls.LogInfo($"{text}"); //debug
@@ -78,6 +144,7 @@ namespace danceTools
                     DMNotice("Item Spawner", "Usage: .item itemID amount value\nCheck Bepin Console");
 
                     string itemPrint = "\nItem List (ID | Name)";
+
 
                     AllItemsList itemList = StartOfRound.Instance.allItemsList;
                     mls.LogInfo(itemList.itemsList.Count);
@@ -164,7 +231,7 @@ namespace danceTools
                 string noticeBody = "Spawned in a random vent inside";
 
                 //spawn it in a random vent
-                if(msg.Length < 2)
+                if(msg.Length > 2)
                 {
                     if (msg[2] == "onme")
                     {
@@ -186,9 +253,36 @@ namespace danceTools
             }
         }
 
+        internal static int CheckInt(string input)
+        {
+            //fix for invalid args
+            if (int.TryParse(input, out int val))
+            {
+                return val;
+            }
+            else
+            {
+                DTConsole.Instance.PushTextToOutput($"Invalid Argument", DanceTools.consoleErrorColor);
+                return -1;
+            }
+        }
 
-            //do something when command is sent
-            static void CommandSent(HUDManager ins)
+        internal static bool CheckHost()
+        {
+            //check if host
+            if (!isHost)
+            {
+                DTConsole.Instance.PushTextToOutput($"You must be host to use this command", DanceTools.consoleErrorColor);
+                return false;
+            } else
+            {
+                return true;
+            }
+        }
+
+
+        //do something when command is sent
+        static void CommandSent(HUDManager ins)
         {
             ins.chatTextField.text = ""; //hide the command message
         }
