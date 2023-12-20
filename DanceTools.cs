@@ -39,6 +39,7 @@ namespace DanceTools
         internal static GameObject consoleRef;
         internal static GameObject console; //obj manager
         internal static GameObject consoleHolder; //obj
+        internal static KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyCode.BackQuote); //ui key;
         //console colors
         internal static string consolePlayerColor;
         internal static string consoleSuccessColor;
@@ -107,6 +108,7 @@ namespace DanceTools
             consoleSuccessColor = Config.Bind("Console Customization", "Console Success Color", "green", "Set success message console color").Value;
             consoleInfoColor = Config.Bind("Console Customization", "Console Info Color", "yellow", "Set info message console color").Value;
             consoleErrorColor = Config.Bind("Console Customization", "Console Error Color", "red", "Set error/fail message console color").Value;
+            keyboardShortcut = Config.Bind("Console Customization", "Console Keybind", new KeyboardShortcut(KeyCode.BackQuote), "Set the shortcut key to open the console. Avaiable keys: https://docs.unity3d.com/ScriptReference/KeyCode.html").Value;
             //add more settings here
         }
 
