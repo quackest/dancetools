@@ -9,7 +9,7 @@ Download the zip and extract `DanceTools.dll` and `/DanceTools/` folder inside y
 
 ## Plugin Info
 Currently there are 6 commands that are usable with the in-game console, and 2 chat commands (from older version)<br>
-Default key to open the console is `~` (Under your escape button)<br>
+Default key to open the console is `~` (Under your escape button) <- This can be changed in the config!<br>
 **Most commands are HOST ONLY. Some can be used by client such as `clear` to clear the console.<br> 
 In the future, there will be some client side commands**
 
@@ -150,6 +150,9 @@ Example: `.enemy 1 onme` <- Spawns a Bunker Spider directly on you. **Doing this
 Feel free to use code from this plugin
 
 ## Changelog
+### Version 1.1.1
+- Added the option to change the default console key in the config file.
+- Fixed an issue with the enemy "onme" function to spawn an enemy correctly.
 ### Version 1.1.0
 - Added Console UI with new commands
 	- `clear`, `close`, `help`, `tester (does nothing)`, `setcredits`
