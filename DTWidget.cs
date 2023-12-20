@@ -75,7 +75,6 @@ namespace DanceTools
     internal class DTConsole : MonoBehaviour
     {
         //ui things
-        internal static KeyboardShortcut UIShortcut = new KeyboardShortcut(KeyCode.BackQuote); //ui key //TODO: add config option
         internal static bool isUIOpen = true; //
         public GameObject holder;
         public TMP_InputField input;
@@ -133,7 +132,7 @@ namespace DanceTools
         public void Update()
         {
             if (!DanceTools.isHost) return; //ignore if not host
-            if (UIShortcut.IsDown())
+            if (DanceTools.keyboardShortcut.IsDown())
             {
                 ToggleUI();
             }

@@ -83,7 +83,7 @@ namespace DanceTools.Commands
                 for(int i = 0; i < amount; i++)
                 {
                     //random vent for each enemy
-                    DanceTools.currentRound.SpawnEnemyOnServer(DanceTools.currentRound.allEnemyVents[UnityEngine.Random.Range(0, DanceTools.currentRound.allEnemyVents.Length)].floorNode.position, 0f, index);
+                    DanceTools.currentRound.SpawnEnemyOnServer(spawnPos, 0f, index);
                 }
                 
 
