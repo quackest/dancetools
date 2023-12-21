@@ -17,7 +17,7 @@ using GameNetcodeStuff;
 using BepInEx.Configuration;
 using System.IO;
 using System.Reflection;
-
+using DanceTools.Commands;
 
 namespace DanceTools
 {
@@ -27,7 +27,7 @@ namespace DanceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.1.0.0";
+        public const string pluginVersion = "1.1.1";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
@@ -40,11 +40,15 @@ namespace DanceTools
         internal static GameObject console; //obj manager
         internal static GameObject consoleHolder; //obj
         internal static KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyCode.BackQuote); //ui key;
+
+        //commands
+        public static List<ICommand> commands = new List<ICommand>();
+
         //console colors
-        internal static string consolePlayerColor;
-        internal static string consoleSuccessColor;
-        internal static string consoleInfoColor;
-        internal static string consoleErrorColor;
+        public static string consolePlayerColor;
+        public static string consoleSuccessColor;
+        public static string consoleInfoColor;
+        public static string consoleErrorColor;
 
 
         //host
@@ -255,7 +259,7 @@ namespace DanceTools
             }
         }
 
-        internal static int CheckInt(string input)
+        public static int CheckInt(string input)
         {
             //fix for invalid args
             if (int.TryParse(input, out int val))
@@ -264,12 +268,12 @@ namespace DanceTools
             }
             else
             {
-                DTConsole.Instance.PushTextToOutput($"Invalid Argument", DanceTools.consoleErrorColor);
+                DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
                 return -1;
             }
         }
 
-        internal static bool CheckHost()
+        public static bool CheckHost()
         {
             //check if host
             if (!isHost)
@@ -290,9 +294,18 @@ namespace DanceTools
         }
 
         //to display messages
-        static void DMNotice(string title, string msg)
+        public static void DMNotice(string title, string msg)
         {
             HUDManager.Instance.DisplayTip(title, msg);
+        }
+
+
+        //external commands
+        public static void AddToCommandsList(ICommand cmd)
+        {
+            //var inst = (ICommand)Activator.CreateInstance(cmd);
+            commands.Add(cmd);
+            mls.LogInfo($"Loaded external command {cmd.Name}!");
         }
     }
 

@@ -13,10 +13,9 @@ using UnityEngine.EventSystems;
 namespace DanceTools
 {
     //logic of the console
-    internal class DTCmdHandler : MonoBehaviour
+    public class DTCmdHandler : MonoBehaviour
     {
-        internal static DTCmdHandler Instance;
-        internal static List<ICommand> commands = new List<ICommand>();
+        public static DTCmdHandler Instance;
 
         //sanity check
         private void Awake()
@@ -31,7 +30,7 @@ namespace DanceTools
             foreach (var cmd in cmdTypes)
             {
                 var inst = (ICommand)Activator.CreateInstance(cmd);
-                commands.Add(inst);
+                DanceTools.commands.Add(inst);
                 DanceTools.mls.LogInfo($"Loaded {inst.Name} command!");
             }
             DanceTools.mls.LogInfo("Commands Loaded!");
@@ -48,13 +47,13 @@ namespace DanceTools
 
             bool cmdFound = false;
 
-            for (int i = 0; i < commands.Count; i++) 
+            for (int i = 0; i < DanceTools.commands.Count; i++) 
             {
-                if (commands[i].Name.ToLower() == args[0].ToLower())
+                if (DanceTools.commands[i].Name.ToLower() == args[0].ToLower())
                 {
                     cmdFound = true;
                     args = args.Skip(1).ToArray(); //get rid of command part
-                    TriggerCommand(commands[i], args);
+                    TriggerCommand(DanceTools.commands[i], args);
                     break;
                 }
             }
@@ -72,7 +71,7 @@ namespace DanceTools
     }
 
     //handles inputs, outputs and keybind to the console
-    internal class DTConsole : MonoBehaviour
+    public class DTConsole : MonoBehaviour
     {
         //ui things
         internal static bool isUIOpen = true; //
@@ -80,7 +79,7 @@ namespace DanceTools
         public TMP_InputField input;
         public TextMeshProUGUI output;
         private string oldOutput = "";
-        internal static DTConsole Instance;
+        public static DTConsole Instance;
         internal static string[] sillyMessages = 
             { 
             "Hey there!",
