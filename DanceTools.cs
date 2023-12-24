@@ -27,7 +27,7 @@ namespace DanceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.1.1";
+        public const string pluginVersion = "1.1.2";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
@@ -40,6 +40,7 @@ namespace DanceTools
         internal static GameObject console; //obj manager
         internal static GameObject consoleHolder; //obj
         internal static KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyCode.BackQuote); //ui key;
+        public static bool consoleDebug = false;
 
         //commands
         public static List<ICommand> commands = new List<ICommand>();
@@ -113,6 +114,7 @@ namespace DanceTools
             consoleInfoColor = Config.Bind("Console Customization", "Console Info Color", "yellow", "Set info message console color").Value;
             consoleErrorColor = Config.Bind("Console Customization", "Console Error Color", "red", "Set error/fail message console color").Value;
             keyboardShortcut = Config.Bind("Console Customization", "Console Keybind", new KeyboardShortcut(KeyCode.BackQuote), "Set the shortcut key to open the console. Avaiable keys: https://docs.unity3d.com/ScriptReference/KeyCode.html").Value;
+            consoleDebug = Config.Bind("Console Customization", "Console Debug", false, "Print debug text to console").Value;
             //add more settings here
         }
 

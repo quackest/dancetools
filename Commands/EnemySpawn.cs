@@ -43,7 +43,7 @@ namespace DanceTools.Commands
                     consoleInfo += $"\n{i} | {DanceTools.currentRound.currentLevel.Enemies[i].enemyType.enemyName}";
                 }
                 DTConsole.Instance.PushTextToOutput($"{consoleInfo}", DanceTools.consoleSuccessColor);
-                DTConsole.Instance.PushTextToOutput("Command usage: spawn id (onme)", DanceTools.consoleInfoColor);
+                DTConsole.Instance.PushTextToOutput("Command usage: enemy id (onme)", DanceTools.consoleInfoColor);
                 return;
             }
             try
@@ -80,10 +80,18 @@ namespace DanceTools.Commands
                         message = $"Spawned {amount}x {DanceTools.currentRound.currentLevel.Enemies[index].enemyType.enemyName} on top of you";
                     }
                 }
-                for(int i = 0; i < amount; i++)
+                int randomIndex= 0;
+                for (int i = 0; i < amount; i++)
                 {
                     //random vent for each enemy
-                    DanceTools.currentRound.SpawnEnemyOnServer(spawnPos, 0f, index);
+                    //im so fucking unique bro.
+                    randomIndex = UnityEngine.Random.Range(0, DanceTools.currentRound.allEnemyVents.Length);
+                    DanceTools.currentRound.SpawnEnemyOnServer(DanceTools.currentRound.allEnemyVents[randomIndex].floorNode.position, 0f, index);
+
+                    if(DanceTools.consoleDebug)
+                    {
+                        DTConsole.Instance.PushTextToOutput($"Enemy{i} pos: {DanceTools.currentRound.allEnemyVents[randomIndex].floorNode.position}", "white");
+                    }
                 }
                 
 
