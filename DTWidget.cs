@@ -40,7 +40,7 @@ namespace DanceTools
         public void CheckCommand(string input)
         {
             //it's a console, we dont need to check for prefixes
-            string[] args = input.Split(' ');
+            string[] args = input.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries); // <- fix for empty spaces counting as elements
 
             //if nothing, ignore it
             if (args.Length == 0) return;
@@ -130,7 +130,7 @@ namespace DanceTools
         //ui key
         public void Update()
         {
-            if (!DanceTools.isHost) return; //ignore if not host
+            //if (!DanceTools.isHost) return; //ignore if not host
             if (DanceTools.keyboardShortcut.IsDown())
             {
                 ToggleUI();
@@ -145,16 +145,25 @@ namespace DanceTools
             if (isUIOpen)
             {
                 holder.gameObject.SetActive(false);
-                GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = false;
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
+                if(DanceTools.isIngame)
+                {
+                    //for when the player is in the main menu. weird case, otherwise it gets stuck
+                    GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = false;
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+                
+
             }
             else
             {
                 holder.gameObject.SetActive(true);
-                GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = true;
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
+                if (DanceTools.isIngame)
+                {
+                    GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen = true;
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
                 //auto focus and reset text to nothing
                 input.text = "";
                 input.ActivateInputField();

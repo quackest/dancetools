@@ -34,6 +34,7 @@ namespace DanceTools
         internal static DanceTools Instance;
         internal static RoundManager currentRound;
         internal static SelectableLevel currentLevel;
+        internal static bool isIngame = false;
 
         //Console things
         internal static GameObject consoleRef;
@@ -45,12 +46,14 @@ namespace DanceTools
         //commands
         public static List<ICommand> commands = new List<ICommand>();
 
+        //enemy spawn command
+        public static List<SpawnableEnemies> spawnableEnemies;
+
         //console colors
         public static string consolePlayerColor;
         public static string consoleSuccessColor;
         public static string consoleInfoColor;
         public static string consoleErrorColor;
-
 
         //host
         internal static bool isHost;
@@ -86,6 +89,8 @@ namespace DanceTools
             mls.LogInfo(temp);
             */
 
+            spawnableEnemies = new List<SpawnableEnemies>();
+
             //adding ui elements in game when game starts.
             if(consoleRef != null)
             {
@@ -118,6 +123,7 @@ namespace DanceTools
             //add more settings here
         }
 
+        
 
         //set host of the lobby
         [HarmonyPatch(typeof(RoundManager), "Start")]
@@ -126,6 +132,74 @@ namespace DanceTools
         {
             isHost = RoundManager.Instance.NetworkManager.IsHost;
             currentRound = RoundManager.Instance;
+            isIngame = true;
+        }
+
+        [HarmonyPatch(typeof(GameNetworkManager), "Disconnect")]
+        [HarmonyPrefix]
+        static void Disconnect()
+        {
+            isIngame = false;
+        }
+
+        [HarmonyPatch(typeof(StartOfRound), "StartGame")]
+        [HarmonyPostfix]
+        static void GetAllEnemiesAvailable()
+        {
+            //get enemies and keep adding them if new ones appear while going through levels
+
+            SpawnableEnemies enemy = new SpawnableEnemies();
+            string temp = "Spawnable Enemy List Updated:\n";
+
+            //currentRound.currentLevel.OutsideEnemies
+            //get outside enemies and add them to the list
+            for (int i = 0; i < currentRound.currentLevel.OutsideEnemies.Count; i++)
+            {
+                if (spawnableEnemies.Any((x) => x.name == currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyName))
+                {
+                    //enemy exists in master list
+                    if (consoleDebug) 
+                    {
+                        DTConsole.Instance.PushTextToOutput($"{currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyName} exists", "red");
+                    }
+                    continue;
+                }
+                enemy.name = currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyName;
+                enemy.isOutside = currentRound.currentLevel.OutsideEnemies[i].enemyType.isOutsideEnemy;
+                enemy.prefab = currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyPrefab;
+                spawnableEnemies.Add(enemy);
+                temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
+            }
+
+            //get inside enemies and add them to the list
+            for (int i = 0; i < currentRound.currentLevel.Enemies.Count; i++)
+            {
+                if (spawnableEnemies.Any((x) => x.name == currentRound.currentLevel.Enemies[i].enemyType.enemyName)) {
+                    //enemy exists in master list
+                    if (consoleDebug)
+                    {
+                        DTConsole.Instance.PushTextToOutput($"{currentRound.currentLevel.Enemies[i].enemyType.enemyName} exists", "red");
+                    }
+                    continue;
+                }
+                enemy.name = currentRound.currentLevel.Enemies[i].enemyType.enemyName;
+                enemy.isOutside = currentRound.currentLevel.Enemies[i].enemyType.isOutsideEnemy;
+                enemy.prefab = currentRound.currentLevel.Enemies[i].enemyType.enemyPrefab;
+                spawnableEnemies.Add(enemy);
+                temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
+            }
+            if(consoleDebug)
+            {
+                DTConsole.Instance.PushTextToOutput(temp, "white");
+            }
+        }
+
+        public struct SpawnableEnemies
+        {
+            public GameObject prefab;
+            public string name;
+            //public int id; //using names to spawn enemies
+            public bool isOutside;
         }
 
         //on chat message sent
@@ -278,7 +352,7 @@ namespace DanceTools
         public static bool CheckHost()
         {
             //check if host
-            if (!isHost)
+            if (!isHost || !isIngame)
             {
                 DTConsole.Instance.PushTextToOutput($"You must be host to use this command", DanceTools.consoleErrorColor);
                 return false;
@@ -302,13 +376,20 @@ namespace DanceTools
         }
 
 
-        //external commands
+        //external commands (WIP)
         public static void AddToCommandsList(ICommand cmd)
         {
             //var inst = (ICommand)Activator.CreateInstance(cmd);
-            commands.Add(cmd);
-            mls.LogInfo($"Loaded external command {cmd.Name}!");
+            try
+            {
+                commands.Add(cmd);
+                mls.LogInfo($"Loaded external command {cmd.Name}!");
+            } catch(Exception e)
+            {
+                mls.LogError(e.ToString());
+            }
         }
+
     }
 
     //notes 
