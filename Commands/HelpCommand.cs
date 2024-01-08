@@ -16,9 +16,9 @@ namespace DanceTools.Commands
         {
             string output = "";
 
-            for (int i = 0; i < DTCmdHandler.commands.Count; i++)
+            for (int i = 0; i < DanceTools.commands.Count; i++)
             {
-                output += $"\n{DTCmdHandler.commands[i].Name}";
+                output += $"\n{DanceTools.commands[i].Name}";
             }
 
             DTConsole.Instance.PushTextToOutput($"List Of Commands: \n{output}", DanceTools.consoleSuccessColor);
@@ -34,12 +34,12 @@ namespace DanceTools.Commands
             bool cmdFound = false;
 
 
-            for (int i = 0; i < DTCmdHandler.commands.Count; i++)
+            for (int i = 0; i < DanceTools.commands.Count; i++)
             {
-                if (DTCmdHandler.commands[i].Name.ToLower() == args[0].ToLower())
+                if (DanceTools.commands[i].Name.ToLower() == args[0].ToLower())
                 {
                     cmdFound = true;
-                    DTConsole.Instance.PushTextToOutput(DTCmdHandler.commands[i].Desc, DanceTools.consoleSuccessColor);
+                    DTConsole.Instance.PushTextToOutput(DanceTools.commands[i].Desc, DanceTools.consoleSuccessColor);
                     break;
                 }
             }

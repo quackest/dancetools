@@ -25,11 +25,7 @@ namespace DanceTools.Commands
         public void ExecCommand(string[] args)
         {
             //check if host
-            if (!DanceTools.isHost)
-            {
-                DTConsole.Instance.PushTextToOutput($"You must be host to use this command", DanceTools.consoleErrorColor);
-                return;
-            }
+            if (!DanceTools.CheckHost()) return;
 
             if (args.Length < 1)
             {
