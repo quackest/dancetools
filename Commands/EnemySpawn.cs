@@ -79,7 +79,7 @@ namespace DanceTools.Commands
                 //get enemy to spawn
                 enemyToSpawn = DanceTools.spawnableEnemies.Find((x) => x.name.ToLower().Contains(enemyName));
 
-                DTConsole.Instance.PushTextToOutput($"{enemyToSpawn.name} <- you chose this debug asdas", DanceTools.consoleErrorColor);
+                //DTConsole.Instance.PushTextToOutput($"{enemyToSpawn.name} <- you chose this debug asdas", DanceTools.consoleErrorColor);
 
                 //check if inside or outside text
                 outsideInsideText = enemyToSpawn.isOutside ? "outside" : "inside a random vent";
