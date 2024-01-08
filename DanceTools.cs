@@ -18,6 +18,7 @@ using BepInEx.Configuration;
 using System.IO;
 using System.Reflection;
 using DanceTools.Commands;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace DanceTools
 {
@@ -142,53 +143,66 @@ namespace DanceTools
             isIngame = false;
         }
 
-        [HarmonyPatch(typeof(StartOfRound), "StartGame")]
+        //do once terminal starts (aka player in ship)
+        //get a list of enemies from each moon/level. (Ty to MaskedEnemyOverhaul for this bit of code)
+        [HarmonyPatch(typeof(Terminal), "Start")]
         [HarmonyPostfix]
-        static void GetAllEnemiesAvailable()
+        private static void GetAllEnemies(ref SelectableLevel[] ___moonsCatalogueList)
         {
-            //get enemies and keep adding them if new ones appear while going through levels
-
+            DTConsole.Instance.PushTextToOutput($"Ran get enemies", "white");
+            SelectableLevel[] array = ___moonsCatalogueList;
             SpawnableEnemies enemy = new SpawnableEnemies();
             string temp = "Spawnable Enemy List Updated:\n";
 
-            //currentRound.currentLevel.OutsideEnemies
-            //get outside enemies and add them to the list
-            for (int i = 0; i < currentRound.currentLevel.OutsideEnemies.Count; i++)
-            {
-                if (spawnableEnemies.Any((x) => x.name == currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyName))
-                {
-                    //enemy exists in master list
-                    if (consoleDebug) 
-                    {
-                        DTConsole.Instance.PushTextToOutput($"{currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyName} exists", "red");
-                    }
-                    continue;
-                }
-                enemy.name = currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyName;
-                enemy.isOutside = currentRound.currentLevel.OutsideEnemies[i].enemyType.isOutsideEnemy;
-                enemy.prefab = currentRound.currentLevel.OutsideEnemies[i].enemyType.enemyPrefab;
-                spawnableEnemies.Add(enemy);
-                temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
-            }
+            //FindObjectOfType<Terminal>().moonsCatalogueList
 
-            //get inside enemies and add them to the list
-            for (int i = 0; i < currentRound.currentLevel.Enemies.Count; i++)
+            //each moon
+            for (int i = 0; i < array.Length; i++)
             {
-                if (spawnableEnemies.Any((x) => x.name == currentRound.currentLevel.Enemies[i].enemyType.enemyName)) {
-                    //enemy exists in master list
-                    if (consoleDebug)
+                SelectableLevel level = array[i];
+                //inside enemies begin
+                for (int j =  0; j < level.Enemies.Count; j++)
+                {
+                    //each inside enemy
+                    if (spawnableEnemies.Any((x) => x.name == level.Enemies[j].enemyType.enemyName))
                     {
-                        DTConsole.Instance.PushTextToOutput($"{currentRound.currentLevel.Enemies[i].enemyType.enemyName} exists", "red");
+                        //enemy exists in master list
+                        if (consoleDebug)
+                        {
+                            DTConsole.Instance.PushTextToOutput($"{level.PlanetName} | {level.Enemies[j].enemyType.enemyName} exists", "red");
+                        }
+                        continue;
                     }
-                    continue;
-                }
-                enemy.name = currentRound.currentLevel.Enemies[i].enemyType.enemyName;
-                enemy.isOutside = currentRound.currentLevel.Enemies[i].enemyType.isOutsideEnemy;
-                enemy.prefab = currentRound.currentLevel.Enemies[i].enemyType.enemyPrefab;
-                spawnableEnemies.Add(enemy);
-                temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
-            }
-            if(consoleDebug)
+                    enemy.name = level.Enemies[j].enemyType.enemyName;
+                    enemy.isOutside = level.Enemies[j].enemyType.isOutsideEnemy;
+                    enemy.prefab = level.Enemies[j].enemyType.enemyPrefab;
+                    spawnableEnemies.Add(enemy);
+                    temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
+                }//inside enemies end
+
+                //outside enemies begin
+                for (int j = 0; j < level.OutsideEnemies.Count; j++)
+                {
+                    //each outside enemy
+                    if (spawnableEnemies.Any((x) => x.name == level.OutsideEnemies[j].enemyType.enemyName))
+                    {
+                        //enemy exists in master list debug
+                        if (consoleDebug)
+                        {
+                            DTConsole.Instance.PushTextToOutput($"{level.PlanetName} | {level.OutsideEnemies[j].enemyType.enemyName} exists", "red");
+                        }
+                        continue;
+                    }
+                    enemy.name = level.OutsideEnemies[j].enemyType.enemyName;
+                    enemy.isOutside = level.OutsideEnemies[j].enemyType.isOutsideEnemy;
+                    enemy.prefab = level.OutsideEnemies[j].enemyType.enemyPrefab;
+                    spawnableEnemies.Add(enemy);
+                    temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
+                } //outside enemies end
+
+            }//moonsList end
+
+            if (consoleDebug)
             {
                 DTConsole.Instance.PushTextToOutput(temp, "white");
             }
@@ -361,7 +375,6 @@ namespace DanceTools
                 return true;
             }
         }
-
 
         //do something when command is sent
         static void CommandSent(HUDManager ins)
