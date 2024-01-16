@@ -20,6 +20,7 @@ namespace DanceTools.Commands
 
         public void ExecCommand(string[] args)
         {
+
             DisplayCommandDesc();
             return; //for testing purposes
             /*if (args.Length < 1)

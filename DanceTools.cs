@@ -28,7 +28,7 @@ namespace DanceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.1.2";
+        public const string pluginVersion = "1.1.3";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
@@ -58,6 +58,9 @@ namespace DanceTools
 
         //host
         internal static bool isHost;
+
+        //player
+        internal static bool playerGodMode = false;
 
         public void Awake()
         {
@@ -255,6 +258,17 @@ namespace DanceTools
             HUDManager.Instance.DisplayTip(title, msg);
         }
 
+        //thanks to GameMaster plugin
+        [HarmonyPatch(typeof(PlayerControllerB), "AllowPlayerDeath")]
+        [HarmonyPrefix]
+        public static bool PreventPlayerDeath()
+        {
+            if (CheckHost()) {
+                return true;
+            }
+            return !playerGodMode;
+        }
+
 
         //external commands (WIP)
         public static void AddToCommandsList(ICommand cmd)
@@ -269,7 +283,6 @@ namespace DanceTools
                 mls.LogError(e.ToString());
             }
         }
-
     }
 
     //notes 
