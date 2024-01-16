@@ -46,6 +46,7 @@ namespace DanceTools.Commands
             int value = 1;
             int amount = 1;
             int index = 0;
+            //float weight = -1;
 
             //fix for invalid args
             index = DanceTools.CheckInt(args[0]);
@@ -98,8 +99,18 @@ namespace DanceTools.Commands
                         value = 1;
                     }
                 }
-                obj.AddComponent<ScanNodeProperties>().scrapValue = value; //attach scanning node for value
+
+
+                //.itemProperties.creditsWorth
+                obj.AddComponent<ScanNodeProperties>(); //attach scanning node for value
+                obj.GetComponent<GrabbableObject>().scrapValue = value;
+                //obj.GetComponent<GrabbableObject>().itemProperties.weight = weight;
                 obj.GetComponent<GrabbableObject>().SetScrapValue(value); //give value to it
+                ScanNodeProperties scan = obj.GetComponent<ScanNodeProperties>();
+                scan.scrapValue = value;
+                scan.subText = $"Value: ${value}";
+                //item.weight = 6969f;
+
                 //spawn it after giving it a value
                 obj.GetComponent<NetworkObject>().Spawn();
             }
