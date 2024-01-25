@@ -52,7 +52,7 @@ namespace DanceTools.Commands
             try
             {
                 string enemyName = args[0].ToLower();
-                DanceTools.SpawnableEnemies enemyToSpawn;
+                DanceTools.SpawnableEnemy enemyToSpawn;
                 int amount = 1;
                 string message = "";
                 string outsideInsideText = "";
@@ -138,7 +138,7 @@ namespace DanceTools.Commands
         }
 
         //needs testing to see if it actually spawns the enemies
-        private void SpawnEnemy(DanceTools.SpawnableEnemies enemy, Vector3 spawnPos, int count = 0)
+        private void SpawnEnemy(DanceTools.SpawnableEnemy enemy, Vector3 spawnPos, int count = 0)
         {
             GameObject gameObject = UnityEngine.Object.Instantiate(enemy.prefab, spawnPos, Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);

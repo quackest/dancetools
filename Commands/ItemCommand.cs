@@ -103,8 +103,8 @@ namespace DanceTools.Commands
                 //spawn it after giving it a value
                 obj.GetComponent<NetworkObject>().Spawn();
             }
+            
             DTConsole.Instance.PushTextToOutput($"Spawned {amount}x item {StartOfRound.Instance.allItemsList.itemsList[index].itemName}({index}) valued at {value}", DanceTools.consoleSuccessColor);
-
         }
     }
 }
