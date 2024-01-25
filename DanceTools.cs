@@ -214,10 +214,25 @@ namespace DanceTools
             {
                 return val;
             }
+            
             else
             {
                 DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
                 return -1;
+            }
+        }
+
+        public static float CheckFloat(string input)
+        {
+            if (float.TryParse(input, out float val))
+            {
+                return val;
+            }
+
+            else
+            {
+                DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
+                return -1f;
             }
         }
 

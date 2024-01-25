@@ -39,13 +39,14 @@ namespace DanceTools.Commands
                 }
                 //mls.LogInfo($"{itemPrint}"); itemList.itemsList.Count
                 DTConsole.Instance.PushTextToOutput($"{itemPrint}", DanceTools.consoleSuccessColor);
-                DTConsole.Instance.PushTextToOutput("Command usage: item itemID amount value", DanceTools.consoleInfoColor);
+                DTConsole.Instance.PushTextToOutput("Command usage: item itemID amount value weight", DanceTools.consoleInfoColor);
                 return;
             }
 
             int value = 1;
             int amount = 1;
             int index = 0;
+            float weight = 1f;
 
             //fix for invalid args
             index = DanceTools.CheckInt(args[0]);
@@ -88,7 +89,7 @@ namespace DanceTools.Commands
                 GameObject obj = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[index].spawnPrefab, spawnPos, Quaternion.identity);
                 obj.GetComponent<GrabbableObject>().fallTime = 0f;
                 
-                //set cost for item
+                // set cost for item
                 if (args.Length > 2)
                 {
                     value = DanceTools.CheckInt(args[2]);
@@ -97,14 +98,27 @@ namespace DanceTools.Commands
                     {
                         value = 1;
                     }
+
+                    // set weight for item
+                    if (args.Length > 3)
+                    {
+                        weight = DanceTools.CheckFloat(args[3]);
+                        if (weight == -1f)
+                        {
+                            weight = 1f;
+                        }
+                    }
                 }
+                
+                
                 obj.AddComponent<ScanNodeProperties>().scrapValue = value; //attach scanning node for value
                 obj.GetComponent<GrabbableObject>().SetScrapValue(value); //give value to it
                 //spawn it after giving it a value
                 obj.GetComponent<NetworkObject>().Spawn();
+                obj.GetComponent<GrabbableObject>().itemProperties.weight = weight;
             }
             
-            DTConsole.Instance.PushTextToOutput($"Spawned {amount}x item {StartOfRound.Instance.allItemsList.itemsList[index].itemName}({index}) valued at {value}", DanceTools.consoleSuccessColor);
+            DTConsole.Instance.PushTextToOutput($"Spawned {amount}x item {StartOfRound.Instance.allItemsList.itemsList[index].itemName}({index}) valued at {value}, with weight {weight} lbs", DanceTools.consoleSuccessColor);
         }
     }
 }
