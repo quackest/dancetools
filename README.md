@@ -30,35 +30,12 @@ Example: `help item` will show what the item command does and how to use it all 
 |----------------|--------|--------------|
 |clear  				 |`clear` | Clears the console log
 |close           |`close` | Closes the console UI. Use this in case of bug/getting stuck
-|enemy           |`enemy enemyID ?amount ?onme`| Spawns X amount of enemies inside random vents. Use command without arguments to see list of all enemies available
+|enemy           |`enemy name ?amount ?onme`| Spawns X amount of enemies inside random vents. Use command without arguments to see list of all enemies available
 |help            |`help ?command`| Without arguments shows list of commands, if used with an argument, it will show that commands description. 
 |item            |`item itemID ?amount ?value`| Spawns X amount of items on top of your (or spectated) player with a specified value.
 |tester          |`tester`| Command for me to play around with. does nothing as of right now
 |setcredits      |`setcredits amount`| Sets the groups credits to a specified amount
 
-</details>
-
-<details>
-  <summary><b> OLD Chat commands. As of v1.1.0 still work but buggy. Use console instead</b> </summary>
-
- Kept these here for anyone that was used to using them.
-
-### **Item Spawn Command:**
-Using the command without arguments will show you how to use it in-game.<br>
-**Note: Using `.item` in game will also show the full list of spawnable items (Including modded) in <br> the Bepin console IF your debug logging is enabled for Bepin**
-
-Usage: `.item ItemID (optional: amount) (optional: value)`<br>
-Example: `.item 49 2 690` <- Spawns 2 Rubber Duckies with the sell value of 690<br>
-Example: `.item 25` <- Spawns 1 Clown Horn with the sell value of 1<br>
-
-### **Enemy Spawn Command:**
-Spawn an enemy inside the building.<br>
-**Note: Not all levels can spawn all enemies. This plugin goes off of the levels difficulty rating**<br>
-**Using the `.enemy` command will show you which enemies you can spawn**
-
-Usage: `.enemy enemyID (optional: onme)`<br>
-Example: `.enemy 1` <- Spawns 1 Bunker Spider inside the building<br>
-Example: `.enemy 1 onme` <- Spawns a Bunker Spider directly on you. **Doing this outside breaks the AI and may break the game**
 </details>
 
 <details>
@@ -139,8 +116,7 @@ Example: `.enemy 1 onme` <- Spawns a Bunker Spider directly on you. **Doing this
 ## Known Issues/Bugs
 - Items that are spawned have no value when scanned. These items still sell for the correct value.
 - Items that are spawned while in the ship/pre-game will sometimes go through the ship until landed.
-- Sometimes adding an extra space in the console will result in an invalid command.
-- Sometimes doesn't allow to be opened when the player dies.
+- Sometimes console won't open if Steam overlay is opened or tabbed out of the game. (Fix is to tab in and out again)
 
 ## Special Thanks to:
 [MrMiinxx](https://www.youtube.com/watch?v=4Q7Zp5K2ywI) - YouTube tutorial for how to make a plugin<br>
@@ -150,6 +126,17 @@ Example: `.enemy 1 onme` <- Spawns a Bunker Spider directly on you. **Doing this
 Feel free to use code from this plugin
 
 ## Changelog
+### Version 1.1.2
+- Reworked `enemy` command:
+  	- Can now use names to spawn enemies (Uses in-game names (Eyeless dog = Mouth Dog))
+	- All enemies should be available to be spawned in regardless of level
+	- Added outside enemies to the spawnable list
+- Fixed empty spaces counting as empty characters in the console
+- Console can now be opened in the main menu. Should be avaiable anywhere.
+- (WIP!!) External command implementation for plugin developers.
+	- Check `ExternalCommands` folder in the github repo
+- Removed chat commands (old way of spawning items/enemies through chat)
+- Enemies should actually actually now spawn in random vents (lol)
 ### Version 1.1.1
 - Added the option to change the default console key in the config file.
 - Fixed an issue with the enemy "onme" function to spawn an enemy correctly.

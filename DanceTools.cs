@@ -30,8 +30,8 @@ namespace DanceTools
         public const string pluginName = "DanceTools";
         public const string pluginVersion = "1.1.3";
 
-        private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
-        public static ManualLogSource mls; //logging
+        private readonly Harmony harmony = new Harmony(pluginGUID); // harmony
+        public static ManualLogSource mls; // logging
         internal static DanceTools Instance;
         internal static RoundManager currentRound;
         internal static SelectableLevel currentLevel;
@@ -39,16 +39,16 @@ namespace DanceTools
 
         //Console things
         internal static GameObject consoleRef;
-        internal static GameObject console; //obj manager
-        internal static GameObject consoleHolder; //obj
-        internal static KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyCode.BackQuote); //ui key;
-        public static bool consoleDebug = false;
+        internal static GameObject console; // obj manager
+        internal static GameObject consoleHolder; // obj
+        internal static KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyCode.BackQuote); // ui key;
+        public static bool consoleDebug;
 
         //commands
         public static List<ICommand> commands = new List<ICommand>();
 
         //enemy spawn command
-        public static List<SpawnableEnemies> spawnableEnemies;
+        public static List<SpawnableEnemy> spawnableEnemies;
 
         //console colors
         public static string consolePlayerColor;
@@ -57,7 +57,7 @@ namespace DanceTools
         public static string consoleErrorColor;
 
         //host
-        internal static bool isHost;
+        private static bool isHost;
 
         //player
         internal static bool playerGodMode = false;
@@ -100,7 +100,7 @@ namespace DanceTools
             }
             mls.LogInfo(temp);
             */
-            spawnableEnemies = new List<SpawnableEnemies>();
+            spawnableEnemies = new List<SpawnableEnemy>();
             //adding ui elements in game when game starts.
             if(consoleRef != null)
             {
@@ -116,7 +116,6 @@ namespace DanceTools
             {
                 mls.LogFatal("No console assets present!!!!\nPlease check that you've installed everything correctly!!");
             }
-            
         }
 
         private void InitConfig()
@@ -131,12 +130,10 @@ namespace DanceTools
             //add more settings here
         }
 
-        
-
-        //set host of the lobby
+        // set host of the lobby
         [HarmonyPatch(typeof(RoundManager), "Start")]
         [HarmonyPrefix]
-        static void setHost()
+        private static void setHost()
         {
             isHost = RoundManager.Instance.NetworkManager.IsHost;
             currentRound = RoundManager.Instance;
@@ -145,69 +142,52 @@ namespace DanceTools
 
         [HarmonyPatch(typeof(GameNetworkManager), "Disconnect")]
         [HarmonyPrefix]
-        static void Disconnect()
+        private static void Disconnect()
         {
             isIngame = false;
         }
 
-        //do once terminal starts (aka player in ship)
-        //get a list of enemies from each moon/level. (Ty to MaskedEnemyOverhaul for this bit of code)
+        // do once terminal starts (aka player in ship)
+        // get a list of enemies from each moon/level. (Ty to MaskedEnemyOverhaul for this bit of code)
         [HarmonyPatch(typeof(Terminal), "Start")]
         [HarmonyPostfix]
         private static void GetAllEnemies(ref SelectableLevel[] ___moonsCatalogueList)
         {
             DTConsole.Instance.PushTextToOutput($"Ran get enemies", "white");
             SelectableLevel[] array = ___moonsCatalogueList;
-            SpawnableEnemies enemy = new SpawnableEnemies();
             string temp = "Spawnable Enemy List Updated:\n";
 
-            //FindObjectOfType<Terminal>().moonsCatalogueList
+            // FindObjectOfType<Terminal>().moonsCatalogueList
 
-            //each moon
-            for (int i = 0; i < array.Length; i++)
+            foreach (EnemyType enemyType in Resources.FindObjectsOfTypeAll<EnemyType>())
             {
-                SelectableLevel level = array[i];
-                //inside enemies begin
-                for (int j =  0; j < level.Enemies.Count; j++)
+                if (enemyType.enemyPrefab == null)
                 {
-                    //each inside enemy
-                    if (spawnableEnemies.Any((x) => x.name == level.Enemies[j].enemyType.enemyName))
+                    // Log a warning if the enemy prefab is missing, uncomment the code if you want 
+                    /*
+                    if (consoleDebug)
                     {
-                        //enemy exists in master list
-                        if (consoleDebug)
-                        {
-                            DTConsole.Instance.PushTextToOutput($"{level.PlanetName} | {level.Enemies[j].enemyType.enemyName} exists", "red");
-                        }
-                        continue;
+                        DTConsole.Instance.PushTextToOutput($"Enemy type {enemyType.name} is missing prefab", "red");
                     }
-                    enemy.name = level.Enemies[j].enemyType.enemyName;
-                    enemy.isOutside = level.Enemies[j].enemyType.isOutsideEnemy;
-                    enemy.prefab = level.Enemies[j].enemyType.enemyPrefab;
-                    spawnableEnemies.Add(enemy);
-                    temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
-                }//inside enemies end
-
-                //outside enemies begin
-                for (int j = 0; j < level.OutsideEnemies.Count; j++)
+                    */
+                    continue;
+                }
+                
+                if (spawnableEnemies.Any((x) => x.name == enemyType.enemyName))
                 {
-                    //each outside enemy
-                    if (spawnableEnemies.Any((x) => x.name == level.OutsideEnemies[j].enemyType.enemyName))
+                    // enemy exists in master list
+                    if (consoleDebug)
                     {
-                        //enemy exists in master list debug
-                        if (consoleDebug)
-                        {
-                            DTConsole.Instance.PushTextToOutput($"{level.PlanetName} | {level.OutsideEnemies[j].enemyType.enemyName} exists", "red");
-                        }
-                        continue;
+                        DTConsole.Instance.PushTextToOutput($"{enemyType.enemyName} exists", "red");
                     }
-                    enemy.name = level.OutsideEnemies[j].enemyType.enemyName;
-                    enemy.isOutside = level.OutsideEnemies[j].enemyType.isOutsideEnemy;
-                    enemy.prefab = level.OutsideEnemies[j].enemyType.enemyPrefab;
-                    spawnableEnemies.Add(enemy);
-                    temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
-                } //outside enemies end
 
-            }//moonsList end
+                    continue;
+                }
+
+                SpawnableEnemy enemy = new SpawnableEnemy(enemyType.enemyPrefab, enemyType.enemyName, enemyType.isOutsideEnemy);
+                spawnableEnemies.Add(enemy);
+                temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
+            }
 
             if (consoleDebug)
             {
@@ -215,22 +195,29 @@ namespace DanceTools
             }
         }
 
-        public struct SpawnableEnemies
+        public struct SpawnableEnemy
         {
             public GameObject prefab;
             public string name;
-            //public int id; //using names to spawn enemies
             public bool isOutside;
+            //public int id; // using names to spawn enemies
+            
+            public SpawnableEnemy(GameObject prefab = null, string name = default, bool isOutside = false)
+            {
+                this.prefab = prefab;
+                this.name = name;
+                this.isOutside = isOutside;
+            }
         }
-
 
         public static int CheckInt(string input)
         {
-            //fix for invalid args
+            // fix for invalid args
             if (int.TryParse(input, out int val))
             {
                 return val;
             }
+            
             else
             {
                 DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
@@ -238,25 +225,35 @@ namespace DanceTools
             }
         }
 
-        public static bool CheckHost()
+        public static float CheckFloat(string input)
         {
-            //check if host
-            if (!isHost || !isIngame)
+            if (float.TryParse(input, out float val))
             {
-                DTConsole.Instance.PushTextToOutput($"You must be host to use this command", DanceTools.consoleErrorColor);
-                return false;
-            } else
+                return val;
+            }
+
+            else
             {
-                return true;
+                DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
+                return -1f;
             }
         }
 
+        public static bool CheckHost()
+        {
+            // check if host
+            if (isHost && isIngame) return true;
+            DTConsole.Instance.PushTextToOutput($"You must be host to use this command", DanceTools.consoleErrorColor);
+            return false;
+        }
 
-        //to display messages on hud (like warning message)
+        // to display messages on hud (like warning message)
         public static void DMNotice(string title, string msg)
         {
             HUDManager.Instance.DisplayTip(title, msg);
         }
+        
+        // external commands (WIP)
 
         //thanks to GameMaster plugin
         [HarmonyPatch(typeof(PlayerControllerB), "AllowPlayerDeath")]
@@ -268,14 +265,14 @@ namespace DanceTools
             }
             return !playerGodMode;
         }
-
+ 
 
         //external commands (WIP)
         public static void AddToCommandsList(ICommand cmd)
         {
-            //var inst = (ICommand)Activator.CreateInstance(cmd);
+            // var inst = (ICommand)Activator.CreateInstance(cmd);
             try
-            {
+            { 
                 commands.Add(cmd);
                 mls.LogInfo($"Loaded external command {cmd.Name}!");
             } catch(Exception e)
