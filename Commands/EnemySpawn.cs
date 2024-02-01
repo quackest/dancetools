@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace DanceTools.Commands
 {
@@ -13,7 +12,7 @@ namespace DanceTools.Commands
     {
         public string Name => "enemy";
 
-        public string Desc => "Spawns enemies\nUsage: enemy name amount (onme)\nType just the command without arguments \nto see list of enemies";
+        public string Desc => "Spawns enemies\nUsage: enemy name amount (onme/inside/outside)\nType just the command without arguments \nto see list of enemies";
 
         public void DisplayCommandDesc()
         {
@@ -26,12 +25,10 @@ namespace DanceTools.Commands
             //check if host
             if (!DanceTools.CheckHost()) return;
 
-            //create a list of spawnable enemies
-            //DanceTools.
-
+            //if first arguemnt doesnt exist, show how to use command
             if (args.Length < 1)
             {
-                string consoleInfo = "\nSpawnable Enemies (Name | Inside/Outside)\n<color=red>Warning. Inside enemies break game when spawned outside.\nSpawn at your own risk.</color>";
+                string consoleInfo = "\nSpawnable Enemies (Name | Inside/Outside)\n<color=red>Warning. Enemies spawning in wrong place may break the game\nSpawn at your own risk.</color>";
 
                 if (DanceTools.currentRound.currentLevel.Enemies.Count <= 0)
                 {
@@ -46,86 +43,119 @@ namespace DanceTools.Commands
                 //DanceTools.currentRound.currentLevel.OutsideEnemies
                 //DanceTools.currentRound.outsideAINodes <- spawnplace
                 DTConsole.Instance.PushTextToOutput($"{consoleInfo}", DanceTools.consoleSuccessColor);
-                DTConsole.Instance.PushTextToOutput("Command usage: enemy name amount (onme)", DanceTools.consoleInfoColor);
+                DTConsole.Instance.PushTextToOutput("Command usage: enemy name amount (onme/inside/outside)", DanceTools.consoleInfoColor);
                 return;
             }
+            //try the command if it has more than 1 argument
             try
             {
+                //vars
+
                 string enemyName = args[0].ToLower();
                 DanceTools.SpawnableEnemy enemyToSpawn;
                 int amount = 1;
                 string message = "";
                 string outsideInsideText = "";
-                bool onMeSpawn = false;
+                Vector3 spawnPos = Vector3.zero;
+                int specialSpawnCase = -1; //-1 = default spawn
 
+                //amount check
                 if (args.Length > 1)
                 {
                     amount = DanceTools.CheckInt(args[1]);
                     if (amount == -1) return;
-
                     if (amount <= 0)
                     {
                         DTConsole.Instance.PushTextToOutput($"Amount cannot be 0 or less than 0", DanceTools.consoleErrorColor);
                         return;
                     }
                 }
-
+                //check if enemy exists in the master list
                 if (!DanceTools.spawnableEnemies.Any((x) => x.name.ToLower().Contains(enemyName)))
                 {
-                    //enemy doesn't exist in list
                     DTConsole.Instance.PushTextToOutput($"Enemy {enemyName} doesn't exist in current list.\nSometimes you need to load a certain map to load an enemy reference.", DanceTools.consoleErrorColor);
                     return;
                 }
+
                 //get enemy to spawn
                 enemyToSpawn = DanceTools.spawnableEnemies.Find((x) => x.name.ToLower().Contains(enemyName));
 
-                DTConsole.Instance.PushTextToOutput($"{enemyToSpawn.name} <- you chose this debug asdas", DanceTools.consoleErrorColor);
-
                 //check if inside or outside text
-                outsideInsideText = enemyToSpawn.isOutside ? "outside" : "inside a random vent";
+                outsideInsideText = enemyToSpawn.isOutside ? "outside on a random node" : "inside a random vent";
 
-                
-                //spawn it in a random vent
+                //specialSpawnCase
+                //-1 = default
+                //0 = onme
+                //1 = inside
+                //2 = outside
+
+                //bit stupid ngl
+                //if special case, then choose which case to spawn 
                 if (args.Length > 2)
                 {
-                    if (args[2] == "onme")
+                    switch (args[2])
                     {
-                        //spawnPos = GameNetworkManager.Instance.localPlayerController.transform.position;
-                        //message = $"Spawned {amount}x {DanceTools.currentRound.currentLevel.Enemies[index].enemyType.enemyName} on top of you";
-                        onMeSpawn = true;
-                        outsideInsideText = "on top of you..";
+                        case "onme":
+                            specialSpawnCase = 0; 
+                            //if player alive, spawn it on top of the player
+                            spawnPos = GameNetworkManager.Instance.localPlayerController.transform.position;
+                            outsideInsideText = "on top of you..";
+
+                            //if is dead, then choose the spectated player instead
+                            if (GameNetworkManager.Instance.localPlayerController.isPlayerDead)
+                            {
+                                spawnPos = GameNetworkManager.Instance.localPlayerController.spectatedPlayerScript.transform.position;
+                                outsideInsideText = $"on {GameNetworkManager.Instance.localPlayerController.spectatedPlayerScript.playerUsername}";
+                            }
+                            break;//break
+
+                        case "inside":
+                            specialSpawnCase = 1;
+                            outsideInsideText = "inside a random vent";
+                            break;//break
+
+                        case "outside":
+                            specialSpawnCase = 2;
+                            outsideInsideText = "outside on a random node";
+                            break;//break
+
+                        default:
+                            specialSpawnCase = -1;
+                            break;
                     }
                 }
-                int randomIndex = 0;
+
+                //check where to spawn enemies and spawn them
                 for (int i = 0; i < amount; i++)
                 {
-                    //random vent for each enemy unless specified otherwise
-                    //im so fucking unique bro.
-                    if(onMeSpawn)
+                    switch(specialSpawnCase)
                     {
-                        Vector3 spawnPos = GameNetworkManager.Instance.localPlayerController.transform.position;
+                        case -1: //default spawn
+                            //inside or outside spawn depending on where enemy is meant to be
+                            if (enemyToSpawn.isOutside)
+                            {
+                                OutsideSpawner(enemyToSpawn);
+                            }
+                            else
+                            {
+                                InsideSpawner(enemyToSpawn);
+                            }
+                            break;
 
-                        //special case for when player is dead and spectating someone else
-                        if (GameNetworkManager.Instance.localPlayerController.isPlayerDead)
-                        {
-                            spawnPos = GameNetworkManager.Instance.localPlayerController.spectatedPlayerScript.transform.position;
-                        }
-                        SpawnEnemy(enemyToSpawn, spawnPos, i);
-                    } else
-                    {
-                        randomIndex = UnityEngine.Random.Range(0, DanceTools.currentRound.allEnemyVents.Length);
-                        if(enemyToSpawn.isOutside)
-                        {
-                            //outside enemy
-                            SpawnEnemy(enemyToSpawn, DanceTools.currentRound.outsideAINodes[randomIndex].transform.position, i);
-                        } else
-                        {
-                            //inside enemy
-                            SpawnEnemy(enemyToSpawn, DanceTools.currentRound.allEnemyVents[randomIndex].floorNode.position, i);
-                        }
-                        
+                        case 0: //onme case. spawn it on top of the player
+                            SpawnEnemy(enemyToSpawn, spawnPos);
+                            break;
+
+                        case 1: //inside spawn
+                            InsideSpawner(enemyToSpawn);
+                            break;
+
+                        case 2: //outside spawn
+                            OutsideSpawner(enemyToSpawn);
+                            break;
                     }
                 }
+
                 //spawn message
                 message = $"Spawned {amount}x {enemyToSpawn.name} {outsideInsideText}";
                 DTConsole.Instance.PushTextToOutput(message, DanceTools.consoleSuccessColor);
@@ -139,14 +169,30 @@ namespace DanceTools.Commands
 
         //needs testing to see if it actually spawns the enemies
         private void SpawnEnemy(DanceTools.SpawnableEnemy enemy, Vector3 spawnPos, int count = 0)
+
+        //special case spawners
+        private void InsideSpawner(DanceTools.SpawnableEnemies enemyToSpawn)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, DanceTools.currentRound.allEnemyVents.Length);
+            SpawnEnemy(enemyToSpawn, DanceTools.currentRound.allEnemyVents[randomIndex].floorNode.position);
+        }
+        private void OutsideSpawner(DanceTools.SpawnableEnemies enemyToSpawn)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, DanceTools.currentRound.outsideAINodes.Length);
+            SpawnEnemy(enemyToSpawn, DanceTools.currentRound.outsideAINodes[randomIndex].transform.position);
+        }
+        //special case spawners end
+
+        //instantiate an enemy prefab and spawn it on the network
+        private void SpawnEnemy(DanceTools.SpawnableEnemies enemy, Vector3 spawnPos)
         {
             GameObject gameObject = UnityEngine.Object.Instantiate(enemy.prefab, spawnPos, Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
 
-            //sanity checker
+            //sanity checker aka debug
             if (DanceTools.consoleDebug)
             {
-                DTConsole.Instance.PushTextToOutput($"{enemy.name}{count} pos: {spawnPos}", "white");
+                DTConsole.Instance.PushTextToOutput($"{enemy.name} pos: {spawnPos}", "white");
             }
         }
     }
