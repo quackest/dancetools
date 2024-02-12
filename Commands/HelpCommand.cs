@@ -21,7 +21,7 @@ namespace DanceTools.Commands
                 output += $"\n{DanceTools.commands[i].Name}";
             }
 
-            DTConsole.Instance.PushTextToOutput($"List Of Commands: \n{output}", DanceTools.consoleSuccessColor);
+            DTConsole.Instance.PushTextToOutput($"If you need help or have feedback, join the LC Modding discord!\nList Of Commands: \n{output}", DanceTools.consoleSuccessColor);
         }
 
         public void ExecCommand(string[] args)

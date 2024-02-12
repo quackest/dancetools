@@ -85,7 +85,8 @@ namespace DanceTools
             "Hey there!",
             "Console colors are customizable in the config o.o",
             "Haiii! >.<",
-            "Dancing on the moon or something.."};
+            "Dancing on the moon or something..",
+            "If you need help or have feedback, join the LC Modding discord!"};
 
         private void Awake()
         {
