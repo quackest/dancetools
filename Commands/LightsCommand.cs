@@ -34,11 +34,11 @@ namespace DanceTools.Commands
                 switch(args[0])
                 {
                     case "on":
-                        DanceTools.currentRound.TurnOnAllLights(true);
+                        DanceTools.currentRound.SwitchPower(true);
                         text = "Indoor lights turned on";
                         break;
                     case "off":
-                        DanceTools.currentRound.TurnOnAllLights(false);
+                        DanceTools.currentRound.SwitchPower(false);
                         text = "Indoor lights turned off";
                         break;
                 }

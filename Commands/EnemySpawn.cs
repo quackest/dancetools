@@ -52,7 +52,7 @@ namespace DanceTools.Commands
                 //vars
 
                 string enemyName = args[0].ToLower();
-                DanceTools.SpawnableEnemies enemyToSpawn;
+                DanceTools.SpawnableEnemy enemyToSpawn;
                 int amount = 1;
                 string message = "";
                 string outsideInsideText = "";
@@ -168,12 +168,12 @@ namespace DanceTools.Commands
         }
 
         //special case spawners
-        private void InsideSpawner(DanceTools.SpawnableEnemies enemyToSpawn)
+        private void InsideSpawner(DanceTools.SpawnableEnemy enemyToSpawn)
         {
             int randomIndex = UnityEngine.Random.Range(0, DanceTools.currentRound.allEnemyVents.Length);
             SpawnEnemy(enemyToSpawn, DanceTools.currentRound.allEnemyVents[randomIndex].floorNode.position);
         }
-        private void OutsideSpawner(DanceTools.SpawnableEnemies enemyToSpawn)
+        private void OutsideSpawner(DanceTools.SpawnableEnemy enemyToSpawn)
         {
             int randomIndex = UnityEngine.Random.Range(0, DanceTools.currentRound.outsideAINodes.Length);
             SpawnEnemy(enemyToSpawn, DanceTools.currentRound.outsideAINodes[randomIndex].transform.position);
@@ -181,7 +181,7 @@ namespace DanceTools.Commands
         //special case spawners end
 
         //instantiate an enemy prefab and spawn it on the network
-        private void SpawnEnemy(DanceTools.SpawnableEnemies enemy, Vector3 spawnPos)
+        private void SpawnEnemy(DanceTools.SpawnableEnemy enemy, Vector3 spawnPos)
         {
             GameObject gameObject = UnityEngine.Object.Instantiate(enemy.prefab, spawnPos, Quaternion.identity);
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);

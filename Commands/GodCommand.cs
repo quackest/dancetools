@@ -21,8 +21,6 @@ namespace DanceTools.Commands
         public void ExecCommand(string[] args)
         {
             
-            DTConsole.Instance.PushTextToOutput("god mode doesn't work right now", DanceTools.consoleInfoColor);
-            return;
             if (!DanceTools.CheckHost()) return;
 
             //flip flop

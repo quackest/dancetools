@@ -38,7 +38,10 @@ namespace DanceTools.Commands
                 temp += playerList[i].playerUsername;
             }
 
-            DTConsole.Instance.PushTextToOutput(temp, DanceTools.consoleInfoColor);*/
+            DTConsole.Instance.PushTextToOutput(temp, DanceTools.consoleInfoColor);
+            DanceTools.currentRound.currentLevel.overrideWeatherType = LevelWeatherType.Eclipsed;
+             
+             */
         }
     }
 }
