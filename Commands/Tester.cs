@@ -20,6 +20,7 @@ namespace DanceTools.Commands
 
         public void ExecCommand(string[] args)
         {
+
             DisplayCommandDesc();
             return; //for testing purposes
             /*if (args.Length < 1)
@@ -37,7 +38,10 @@ namespace DanceTools.Commands
                 temp += playerList[i].playerUsername;
             }
 
-            DTConsole.Instance.PushTextToOutput(temp, DanceTools.consoleInfoColor);*/
+            DTConsole.Instance.PushTextToOutput(temp, DanceTools.consoleInfoColor);
+            DanceTools.currentRound.currentLevel.overrideWeatherType = LevelWeatherType.Eclipsed;
+             
+             */
         }
     }
 }

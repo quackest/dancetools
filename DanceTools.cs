@@ -28,13 +28,12 @@ namespace DanceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.1.2";
+        public const string pluginVersion = "1.1.3";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
         internal static DanceTools Instance;
         internal static RoundManager currentRound;
-        internal static SelectableLevel currentLevel;
         internal static bool isIngame = false;
 
         //Console things
@@ -48,7 +47,10 @@ namespace DanceTools
         public static List<ICommand> commands = new List<ICommand>();
 
         //enemy spawn command
-        public static List<SpawnableEnemies> spawnableEnemies;
+        public static List<SpawnableEnemy> spawnableEnemies = new List<SpawnableEnemy>();
+
+        //items
+        public static List<DTItem> spawnableItems = new List<DTItem>();
 
         //console colors
         public static string consolePlayerColor;
@@ -58,6 +60,9 @@ namespace DanceTools
 
         //host
         internal static bool isHost;
+
+        //player
+        internal static bool playerGodMode = false;
 
         public void Awake()
         {
@@ -97,7 +102,7 @@ namespace DanceTools
             }
             mls.LogInfo(temp);
             */
-            spawnableEnemies = new List<SpawnableEnemies>();
+            spawnableEnemies = new List<SpawnableEnemy>();
             //adding ui elements in game when game starts.
             if(consoleRef != null)
             {
@@ -151,15 +156,15 @@ namespace DanceTools
         //get a list of enemies from each moon/level. (Ty to MaskedEnemyOverhaul for this bit of code)
         [HarmonyPatch(typeof(Terminal), "Start")]
         [HarmonyPostfix]
-        private static void GetAllEnemies(ref SelectableLevel[] ___moonsCatalogueList)
+        private static void GetAllEnemiesAndItems(ref SelectableLevel[] ___moonsCatalogueList)
         {
+            GetAllItems();
             DTConsole.Instance.PushTextToOutput($"Ran get enemies", "white");
             SelectableLevel[] array = ___moonsCatalogueList;
-            SpawnableEnemies enemy = new SpawnableEnemies();
+            SpawnableEnemy enemy = new SpawnableEnemy();
             string temp = "Spawnable Enemy List Updated:\n";
 
             //FindObjectOfType<Terminal>().moonsCatalogueList
-
             //each moon
             for (int i = 0; i < array.Length; i++)
             {
@@ -204,20 +209,56 @@ namespace DanceTools
                     temp += $"\n{enemy.name} | {(enemy.isOutside ? "outside" : "inside")}";
                 } //outside enemies end
 
+                if (consoleDebug)
+                {
+                    DTConsole.Instance.PushTextToOutput(temp, "white");
+                }
+
             }//moonsList end
 
+        }
+        //why no work
+        private static void GetAllItems()
+        {
+            //items
+            DTItem DTitem = new DTItem();
+            string itemTemp = "Started Items:";
+
+            AllItemsList itemList = StartOfRound.Instance.allItemsList;
+
+            itemTemp += $"{itemList.itemsList.Count} <- item 0";
+            //items begin
+            for (int i = 0; i < itemList.itemsList.Count; i++)
+            {
+                DTitem.name = itemList.itemsList[i].itemName;
+                DTitem.id = i;
+                DTitem.prefab = itemList.itemsList[i].spawnPrefab;
+
+                spawnableItems.Add(DTitem);
+                //itemTemp += $"\n{DTitem.name} | {DTitem.id}";
+                itemTemp += $"\n{i} | {DTitem.name}";
+            }
+            //items end
             if (consoleDebug)
             {
-                DTConsole.Instance.PushTextToOutput(temp, "white");
+                DTConsole.Instance.PushTextToOutput(itemTemp, "white");
+                DTConsole.Instance.PushTextToOutput($"Ran get all items", "white");
             }
         }
 
-        public struct SpawnableEnemies
+        public struct SpawnableEnemy
         {
             public GameObject prefab;
             public string name;
             //public int id; //using names to spawn enemies
             public bool isOutside;
+        }
+
+        public struct DTItem
+        {
+            public GameObject prefab;
+            public string name;
+            public int id;
         }
 
 
@@ -232,6 +273,20 @@ namespace DanceTools
             {
                 DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
                 return -1;
+            }
+        }
+
+        public static float CheckFloat(string input)
+        {
+            //fix for invalid args
+            if (float.TryParse(input, out float val))
+            {
+                return val;
+            }
+            else
+            {
+                DTConsole.Instance.PushTextToOutput($"Invalid Argument", consoleErrorColor);
+                return -1f;
             }
         }
 
@@ -255,6 +310,14 @@ namespace DanceTools
             HUDManager.Instance.DisplayTip(title, msg);
         }
 
+        //thanks to GameMaster plugin
+        [HarmonyPatch(typeof(PlayerControllerB), "AllowPlayerDeath")]
+        [HarmonyPrefix]
+        public static bool AllowPlayerDeath()
+        {
+            return !playerGodMode;
+        }
+
 
         //external commands (WIP)
         public static void AddToCommandsList(ICommand cmd)
@@ -269,7 +332,6 @@ namespace DanceTools
                 mls.LogError(e.ToString());
             }
         }
-
     }
 
     //notes 

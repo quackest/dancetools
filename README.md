@@ -19,7 +19,7 @@ Using `help <another command name>` will give you a description of that command.
 Example: `help item` will show what the item command does and how to use it all within the console!
 
 ### Current list of commands
-`clear`, `close`, `enemy`, `help`, `item`, `tester (does nothing)`, `setcredits`
+`clear`, `close`, `enemy`,`god`, `help`, `item`, `lights`, `tester (does nothing)`, `setcredits`
 
 <details>
   <summary><b>Command Usage/Descriptions</b></summary><br>
@@ -28,18 +28,20 @@ Example: `help item` will show what the item command does and how to use it all 
 
 |Command         |Usage   |Description   |
 |----------------|--------|--------------|
-|clear  				 |`clear` | Clears the console log
+|clear  	 |`clear` | Clears the console log
 |close           |`close` | Closes the console UI. Use this in case of bug/getting stuck
 |enemy           |`enemy name ?amount ?onme`| Spawns X amount of enemies inside random vents. Use command without arguments to see list of all enemies available
+|god		 |`god` | Toggles Godmode for the host
 |help            |`help ?command`| Without arguments shows list of commands, if used with an argument, it will show that commands description. 
-|item            |`item itemID ?amount ?value`| Spawns X amount of items on top of your (or spectated) player with a specified value.
+|item            |`item itemID/name ?amount ?value ?weight(buggy)`| Spawns X amount of items on top of your (or spectated) player with a specified value.
+|lights 	 |`lights on/off` | Changes the lights inside
 |tester          |`tester`| Command for me to play around with. does nothing as of right now
 |setcredits      |`setcredits amount`| Sets the groups credits to a specified amount
 
 </details>
 
 <details>
-  <summary><b> Vanilla Item List (v45) (Click to expand)</b> </summary>
+  <summary><b> Vanilla Item List (v49) (Click to expand)</b> </summary>
 
 | ItemID | Item Name |
 | ----------- | ----------- |
@@ -117,6 +119,8 @@ Example: `help item` will show what the item command does and how to use it all 
 - Items that are spawned have no value when scanned. These items still sell for the correct value.
 - Items that are spawned while in the ship/pre-game will sometimes go through the ship until landed.
 - Sometimes console won't open if Steam overlay is opened or tabbed out of the game. (Fix is to tab in and out again)
+- Weight parameter doesn't work properly for `item` command
+- Some inputs are recorded while you have the console open (ie typing `god` will also drop your active item)
 
 ## Special Thanks to:
 [MrMiinxx](https://www.youtube.com/watch?v=4Q7Zp5K2ywI) - YouTube tutorial for how to make a plugin<br>
@@ -126,6 +130,13 @@ Example: `help item` will show what the item command does and how to use it all 
 Feel free to use code from this plugin
 
 ## Changelog
+### Version 1.1.3
+- Added `god` command
+- Added `lights` command
+- Added new functionality to Item command:
+  	- You can now type the name of the item to spawn it instead of ID. Both ways work
+  	- Weight is now a parameter. <- Doesn't work properly, set it to 0 or leave it for normal weight.
+
 ### Version 1.1.2
 - Reworked `enemy` command:
   	- Can now use names to spawn enemies (Uses in-game names (Eyeless dog = Mouth Dog))
