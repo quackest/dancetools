@@ -28,7 +28,7 @@ namespace DanceTools
         //plugin info
         public const string pluginGUID = "dancemoon.lethalcompany.dancetools";
         public const string pluginName = "DanceTools";
-        public const string pluginVersion = "1.1.3";
+        public const string pluginVersion = "1.1.4";
 
         private readonly Harmony harmony = new Harmony(pluginGUID);//harmony
         public static ManualLogSource mls; //logging
@@ -52,11 +52,14 @@ namespace DanceTools
         //items
         public static List<DTItem> spawnableItems = new List<DTItem>();
 
-        //console colors
+        //console customization
         public static string consolePlayerColor;
         public static string consoleSuccessColor;
         public static string consoleInfoColor;
         public static string consoleErrorColor;
+        public static Color consoleOutputFieldColor;
+        public static Color consoleInputFieldColor;
+        public static bool consoleClearAfterOpening = false;
 
         //host
         internal static bool isHost;
@@ -124,13 +127,22 @@ namespace DanceTools
         private void InitConfig()
         {
             //console customization
+            //text colors
             consolePlayerColor = Config.Bind("Console Customization", "Console Player Color", "#00FFF3", "Set player console color").Value;
             consoleSuccessColor = Config.Bind("Console Customization", "Console Success Color", "green", "Set success message console color").Value;
             consoleInfoColor = Config.Bind("Console Customization", "Console Info Color", "yellow", "Set info message console color").Value;
             consoleErrorColor = Config.Bind("Console Customization", "Console Error Color", "red", "Set error/fail message console color").Value;
+
+            //console colors
+            ////////////////////////////////////////////////broken
+            consoleOutputFieldColor = Config.Bind("Console Customization", "Console Output Field Color (Hex)", new Color(0, 0, 0), "Sets the color and opacity of the OUTPUT field background\nAlpha value goes from 0 to 1.\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
+            consoleInputFieldColor = Config.Bind("Console Customization", "Console Input Field Color (Hex)", new Color(0, 0, 0), "Sets the color and opacity of the INPUT field background\nAlpha value goes from 0 to 1.\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
+
+            //other console settings
             keyboardShortcut = Config.Bind("Console Customization", "Console Keybind", new KeyboardShortcut(KeyCode.BackQuote), "Set the shortcut key to open the console. Avaiable keys: https://docs.unity3d.com/ScriptReference/KeyCode.html").Value;
             consoleDebug = Config.Bind("Console Customization", "Console Debug", false, "Print debug text to console").Value;
-            //add more settings here
+            consoleClearAfterOpening = Config.Bind("Console Customization", "Auto-Clear console when opening", false, "Clears the console output window each time it is opened").Value;
+            
         }
 
         
@@ -260,6 +272,7 @@ namespace DanceTools
             public string name;
             public int id;
         }
+
 
 
         public static int CheckInt(string input)
