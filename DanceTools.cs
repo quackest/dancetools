@@ -57,8 +57,8 @@ namespace DanceTools
         public static string consoleSuccessColor;
         public static string consoleInfoColor;
         public static string consoleErrorColor;
-        public static Color consoleOutputFieldColor;
-        public static Color consoleInputFieldColor;
+        public static Color consoleOutputFieldColor = new Color(0, 0, 0, 0.78f);
+        public static Color consoleInputFieldColor = new Color(0, 0, 0, 0.78f);
         public static bool consoleClearAfterOpening = false;
 
         //host
@@ -135,14 +135,17 @@ namespace DanceTools
 
             //console colors
             ////////////////////////////////////////////////broken
-            consoleOutputFieldColor = Config.Bind("Console Customization", "Console Output Field Color (Hex)", new Color(0, 0, 0), "Sets the color and opacity of the OUTPUT field background\nAlpha value goes from 0 to 1.\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
-            consoleInputFieldColor = Config.Bind("Console Customization", "Console Input Field Color (Hex)", new Color(0, 0, 0), "Sets the color and opacity of the INPUT field background\nAlpha value goes from 0 to 1.\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
+            consoleOutputFieldColor = Config.Bind("Console Customization", "Console Output Field Color (Hex)", new Color(0, 0, 0, 0.78f), "Sets the color and opacity of the OUTPUT field background\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
+            consoleInputFieldColor = Config.Bind("Console Customization", "Console Input Field Color (Hex)", new Color(0, 0, 0, 0.78f), "Sets the color and opacity of the INPUT field background\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
 
             //other console settings
             keyboardShortcut = Config.Bind("Console Customization", "Console Keybind", new KeyboardShortcut(KeyCode.BackQuote), "Set the shortcut key to open the console. Avaiable keys: https://docs.unity3d.com/ScriptReference/KeyCode.html").Value;
             consoleDebug = Config.Bind("Console Customization", "Console Debug", false, "Print debug text to console").Value;
             consoleClearAfterOpening = Config.Bind("Console Customization", "Auto-Clear console when opening", false, "Clears the console output window each time it is opened").Value;
-            
+
+            //load the settings if needed after hand
+            DTConsole.Instance.SetCustomizationSettings();
+
         }
 
         

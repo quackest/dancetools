@@ -102,8 +102,6 @@ namespace DanceTools
             DanceTools.mls.LogInfo($"Setup input: {input.name}");
             DanceTools.mls.LogInfo($"Setup output: {output.name}");
 
-            GetCustomizationSettings();
-
             input.onSubmit.AddListener(text => { OnEditEnd(text); }); ; //worky :^]
             //set default starting command to help
             input.text = "help";
@@ -116,15 +114,18 @@ namespace DanceTools
             holder.SetActive(false); //uncomment
         }
 
-        private void GetCustomizationSettings()
+        public void SetCustomizationSettings()
         {
             inputBackground = transform.Find("Holder/InputBackground").GetComponent<Image>();
             outputBackground = transform.Find("Holder/OutputBackground").GetComponent<Image>();
             //set the background window colors
+            //outputBackground.color = new Color(0f, 0f, 0f, DanceTools.consoleOutputFieldOpacity);
+            //inputBackground.color = new Color(0f, 0f, 0f, DanceTools.consoleInputFieldOpacity);
+
             outputBackground.color = DanceTools.consoleOutputFieldColor;
             inputBackground.color = DanceTools.consoleInputFieldColor;
 
-            PushTextToOutput($"{DanceTools.consoleInputFieldColor.g} | {DanceTools.consoleInputFieldColor.a}");
+            PushTextToOutput($"{DanceTools.consoleInputFieldColor}");
             
         }
 
@@ -184,7 +185,7 @@ namespace DanceTools
                 }
 
                 //clear console on open if config is set
-                if(DanceTools.consoleClearAfterOpening)
+                if (DanceTools.consoleClearAfterOpening)
                 {
                     ClearConsole();
                 }
