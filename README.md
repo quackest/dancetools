@@ -124,12 +124,19 @@ Example: `help item` will show what the item command does and how to use it all 
 
 ## Special Thanks to:
 [MrMiinxx](https://www.youtube.com/watch?v=4Q7Zp5K2ywI) - YouTube tutorial for how to make a plugin<br>
-[GameMaster Plugin](https://thunderstore.io/c/lethal-company/p/GameMasterDevs/GameMaster/) - Great Plugin with great examples
+[GameMaster Plugin](https://thunderstore.io/c/lethal-company/p/GameMasterDevs/GameMaster/) - Great Plugin with great examples<br>
+<b>And a big thanks to everyone who has given feedback and suggestions. <3<b>
 
 ## Other
 Feel free to use code from this plugin
 
 ## Changelog
+### Version 1.1.4
+- Added the ability to change the console opacity as per request
+	- This can be done through the config using HEX color
+ 		- This also means you can change the color of the background if you wish
+- Changed how the weight parameter works to make sure it doesn't set weight of items to 0 if nothing specified
+	- Weight parameter is still buggy.
 ### Version 1.1.3
 - Added `god` command
 - Added `lights` command
