@@ -134,7 +134,6 @@ namespace DanceTools
             consoleErrorColor = Config.Bind("Console Customization", "Console Error Color", "red", "Set error/fail message console color").Value;
 
             //console colors
-            ////////////////////////////////////////////////broken
             consoleOutputFieldColor = Config.Bind("Console Customization", "Console Output Field Color (Hex)", new Color(0, 0, 0, 0.78f), "Sets the color and opacity of the OUTPUT field background\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
             consoleInputFieldColor = Config.Bind("Console Customization", "Console Input Field Color (Hex)", new Color(0, 0, 0, 0.78f), "Sets the color and opacity of the INPUT field background\nUse this tool to get a hex value with alpha: https://rgbacolorpicker.com/rgba-to-hex").Value;
 
