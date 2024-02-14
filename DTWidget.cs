@@ -125,7 +125,7 @@ namespace DanceTools
             outputBackground.color = DanceTools.consoleOutputFieldColor;
             inputBackground.color = DanceTools.consoleInputFieldColor;
 
-            PushTextToOutput($"{DanceTools.consoleInputFieldColor}");
+            //PushTextToOutput($"{DanceTools.consoleInputFieldColor}");
             
         }
 
