@@ -116,7 +116,7 @@ namespace DanceTools.Commands
                 //fix for invalid args
                 if (weight == -1f)
                 {
-                    weight = 1f;
+                    weight = -1f;
                 }
             }
 
@@ -140,7 +140,10 @@ namespace DanceTools.Commands
                 //idk which one actually sets the value properly, do all of them
                 obj.GetComponent<GrabbableObject>().fallTime = 0f;
                 obj.GetComponent<GrabbableObject>().scrapValue = value;
-                obj.GetComponent<GrabbableObject>().itemProperties.weight = weight;
+                if(weight != -1f)
+                {
+                    obj.GetComponent<GrabbableObject>().itemProperties.weight = weight;
+                }
                 obj.GetComponent<GrabbableObject>().itemProperties.creditsWorth = value;
                 obj.GetComponent<GrabbableObject>().SetScrapValue(value); //give value to it
                 //item.weight = 6969f;
@@ -149,7 +152,7 @@ namespace DanceTools.Commands
                 obj.GetComponent<NetworkObject>().Spawn();
 
             }
-            DTConsole.Instance.PushTextToOutput($"Spawned {amount}x item {StartOfRound.Instance.allItemsList.itemsList[index].itemName}({index}) valued at {value} (weight: {weight})", DanceTools.consoleSuccessColor);
+            DTConsole.Instance.PushTextToOutput($"Spawned {amount}x item {StartOfRound.Instance.allItemsList.itemsList[index].itemName}({index}) valued at {value} (weight: {weight} (buggy))", DanceTools.consoleSuccessColor);
 
         }
     }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace DanceTools
 {
@@ -76,6 +77,8 @@ namespace DanceTools
         //ui things
         internal static bool isUIOpen = true; //
         public GameObject holder;
+        public Image inputBackground;
+        public Image outputBackground;
         public TMP_InputField input;
         public TextMeshProUGUI output;
         private string oldOutput = "";
@@ -109,6 +112,21 @@ namespace DanceTools
 
             //hide the console on startup
             holder.SetActive(false); //uncomment
+        }
+
+        public void SetCustomizationSettings()
+        {
+            inputBackground = transform.Find("Holder/InputBackground").GetComponent<Image>();
+            outputBackground = transform.Find("Holder/OutputBackground").GetComponent<Image>();
+            //set the background window colors
+            //outputBackground.color = new Color(0f, 0f, 0f, DanceTools.consoleOutputFieldOpacity);
+            //inputBackground.color = new Color(0f, 0f, 0f, DanceTools.consoleInputFieldOpacity);
+
+            outputBackground.color = DanceTools.consoleOutputFieldColor;
+            inputBackground.color = DanceTools.consoleInputFieldColor;
+
+            PushTextToOutput($"{DanceTools.consoleInputFieldColor}");
+            
         }
 
         //User input
@@ -165,6 +183,13 @@ namespace DanceTools
                     Cursor.lockState = CursorLockMode.None;
                     Cursor.visible = true;
                 }
+
+                //clear console on open if config is set
+                if (DanceTools.consoleClearAfterOpening)
+                {
+                    ClearConsole();
+                }
+
                 //auto focus and reset text to nothing
                 input.text = "";
                 input.ActivateInputField();
@@ -176,5 +201,7 @@ namespace DanceTools
             output.text = "";
             oldOutput = "";
         }
+
     }
+
 }
